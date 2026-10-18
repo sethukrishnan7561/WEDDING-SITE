@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Highlights</title>
+  <title>Portrait Gallery — Photosen</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -274,9 +274,28 @@
     <a href="#" class="brand">Photosen</a>
 
     <div class="nav-desktop">
-    
+      <nav>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li class="dropdown"><a href="#" class="active">Gallery <i class="fa-solid fa-chevron-down"></i></a></li>
+          <li><a href="#">Services</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="social-links">
+        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+      </div>
     </div>
 
+    <!-- Mobile Menu Button -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
   </header>
 
   <!-- Mobile Drawer Menu -->
@@ -285,12 +304,26 @@
     <button class="drawer-close" id="drawerClose" aria-label="Close menu">
       <i class="fa-solid fa-xmark"></i>
     </button>
+    <div class="drawer-nav">
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#" class="active">Gallery</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="social-links" style="display: flex;">
+      <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+      <a href="#"><i class="fa-brands fa-instagram"></i></a>
+      <a href="#"><i class="fa-brands fa-youtube"></i></a>
     </div>
   </aside>
 
   <!-- Page Title -->
   <section class="gallery-header">
-    <h1>Highlights</h1>
+    <h1>Portrait Gallery</h1>
   </section>
 
   <!-- Image Grid -->
@@ -313,7 +346,7 @@
 
   <!-- Footer -->
   <footer>
-    <p>Copyright &copy; 2026 All rights reserved </p>
+    <p>Copyright &copy; 2026 All rights reserved | This template is made with <i class="fa-solid fa-heart"></i> by <a href="https://colorlib.com" target="_blank" rel="noopener">Colorlib</a></p>
   </footer>
 
   <script>
