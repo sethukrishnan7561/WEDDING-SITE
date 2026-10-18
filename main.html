@@ -3,190 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memories - Leni & Jackson</title>
+    <title>LENI & JACKSON - Selection Album</title>
     <style>
+        :root {
+            --bg-color: #f9f9fb;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --accent-color: #3182ce;
+            --accent-hover: #2b6cb0;
+            --border-color: #e2e8f0;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            background-color: #1a1a1a;
-            color: #ffffff;
-            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1920');
-            background-size: cover;
-            background-position: center;
-            padding: 20px;
+            min-height: 100vh;
         }
 
-        .container {
-            text-align: center;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-placeholder {
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border: 1px dashed var(--border-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .album-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+        }
+
+        main {
+            flex: 1;
             max-width: 800px;
             width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
         }
 
-        h1 {
-            font-size: 3.5rem;
-            font-weight: 300;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            color: #f4ebd0;
-        }
-
-        .subtitle {
-            font-size: 0.9rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: #d4af37;
-            margin-bottom: 40px;
-        }
-
-        .upload-card {
-            background: rgba(40, 40, 40, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 40px;
-            padding: 15px 25px;
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .btn-choose {
-            background-color: #d4af37;
-            color: #1a1a1a;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-choose:hover {
-            background-color: #e6c55c;
-        }
-
-        .select-wrapper {
-            position: relative;
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 12px 20px;
+        .albums-container {
             display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .album-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            cursor: pointer;
+            transition: box-shadow 0.2s ease;
         }
 
-        .select-wrapper select {
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-size: 1rem;
-            outline: none;
-            cursor: pointer;
+        .album-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        .select-wrapper select option {
-            background-color: #282828;
-            color: #ffffff;
+        .album-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-        .btn-add {
-            background-color: #ffffff;
-            color: #1a1a1a;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 20px;
+        .folder-title {
+            font-size: 18px;
             font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .photo-count {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background 0.3s;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
         }
 
-        .btn-add:hover {
-            background-color: #e0e0e0;
+        .btn:hover {
+            background-color: var(--accent-hover);
         }
 
-        .tabs {
+        .selection-banner {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 15px;
+        }
+
+        .selection-banner a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .selection-banner a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        section h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .contact-details {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 40px;
+            align-items: center;
+            gap: 20px;
             flex-wrap: wrap;
         }
 
-        .tab {
-            background: rgba(40, 40, 40, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            padding: 10px 24px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
+        .contact-details a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        .tab.active, .tab:hover {
-            background-color: #d4af37;
-            color: #1a1a1a;
-            border-color: #d4af37;
-            font-weight: 600;
+        .contact-details a:hover {
+            text-decoration: underline;
         }
 
-        .content-message {
-            color: #b0b0b0;
-            font-style: italic;
-            font-size: 1.1rem;
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            background: var(--card-bg);
         }
 
-        /* Hidden real file input */
-        #file-input {
-            display: none;
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .album-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Leni & Jackson</h1>
-        <div class="subtitle">Memories Forever Begins</div>
+    <header>
+        <div class="logo-area">
+            <div class="logo-placeholder">Tuesday Lights</div>
+        </div>
+        <div class="album-title">Leni & Jackson</div>
+    </header>
 
-        <div class="upload-card">
-            <input type="file" id="file-input" multiple>
-            <button class="btn-choose" onclick="document.getElementById('file-input').click();">Choose Photos</button>
-            
-            <div class="select-wrapper">
-                <select id="category-select">
-                    <option value="Save The Date">Save The Date</option>
-                    <option value="Engagement">Engagement</option>
-                    <option value="Wedding">Wedding</option>
-                </select>
+    <main>
+        <div class="albums-container">
+            <div class="album-card">
+                <div class="album-info">
+                    <span class="folder-title">Sd</span>
+                    <span class="photo-count">2367 photos</span>
+                </div>
+                <a href="#" class="btn">View photos</a>
             </div>
 
-            <button class="btn-add">Add to Album</button>
+            <div class="album-card">
+                <div class="album-info">
+                    <span class="folder-title">Eng Cam 1</span>
+                    <span class="photo-count">3218 photos</span>
+                </div>
+                <a href="#" class="btn">View photos</a>
+            </div>
+
+            <div class="album-card">
+                <div class="album-info">
+                    <span class="folder-title">Eng Cam 2</span>
+                    <span class="photo-count">3119 photos</span>
+                </div>
+                <a href="#" class="btn">View photos</a>
+            </div>
+
+            <div class="album-card">
+                <div class="album-info">
+                    <span class="folder-title">Wed Cam 1 Part 1</span>
+                    <span class="photo-count">3697 photos</span>
+                </div>
+                <a href="#" class="btn">View photos</a>
+            </div>
+
+            <div class="album-card">
+                <div class="album-info">
+                    <span class="folder-title">Wed Cam 2 Part 1</span>
+                    <span class="photo-count">4330 photos</span>
+                </div>
+                <a href="#" class="btn">View photos</a>
+            </div>
         </div>
 
-        <div class="tabs">
-            <button class="tab active">All Photos</button>
-            <button class="tab">Save The Date</button>
-            <button class="tab">Engagement</button>
-            <button class="tab">Wedding</button>
+        <div class="selection-banner">
+            Want to select photos ? <a href="#">Click here</a>
         </div>
 
-        <div class="content-message">
-            No photos added to this category yet. Upload some above!
-        </div>
-    </div>
+        <section>
+            <h2>For Enquiry Contact Us</h2>
+            <div class="contact-details">
+                <a href="tel:918086324716">918086324716</a>
+                <a href="#" target="_blank">Instagram</a>
+                <a href="#" target="_blank">Youtube</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        © 2026 Tuesday Lights . All rights reserved. Powered By <a href="#" target="_blank">Digital Hugs</a>
+    </footer>
 
 </body>
 </html>
