@@ -637,9 +637,10 @@
   <input type="file" id="coverFileInput" accept="image/*" style="display: none;" onchange="handleCoverFileSelected(event)">
   <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="handleBannerFileSelected(event)">
 
-  <!-- Script for Navigation, View, Select, Delete, Download, and Cover Selection -->
+  <!-- Script with localStorage Support -->
   <script>
-    const albumData = {
+    // Default album structure and banners
+    const defaultAlbumData = {
       "Save the Date": {
         cover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
         photos: [
@@ -669,14 +670,26 @@
       }
     };
 
+    const defaultBannerUrl = "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80";
+
+    // Load data from browser localStorage or fallback to defaults
+    let albumData = JSON.parse(localStorage.getItem('weddingAlbumData')) || defaultAlbumData;
+    let bannerUrl = localStorage.getItem('weddingBannerUrl') || defaultBannerUrl;
+
     let activeFolder = "";
     let folderToChangeCover = "";
+
+    function saveData() {
+      localStorage.setItem('weddingAlbumData', JSON.stringify(albumData));
+      localStorage.setItem('weddingBannerUrl', bannerUrl);
+    }
 
     function scrollToGrid() {
       document.getElementById('folder-grid').scrollIntoView({ behavior: 'smooth' });
     }
 
     function renderFolders() {
+      document.getElementById('mainBannerImg').src = bannerUrl;
       const grid = document.getElementById('folder-grid');
       grid.innerHTML = '';
 
@@ -710,7 +723,9 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          document.getElementById('mainBannerImg').src = e.target.result;
+          bannerUrl = e.target.result;
+          document.getElementById('mainBannerImg').src = bannerUrl;
+          saveData();
         };
         reader.readAsDataURL(file);
       }
@@ -729,6 +744,7 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           albumData[folderToChangeCover].cover = e.target.result;
+          saveData();
           renderFolders();
         };
         reader.readAsDataURL(file);
@@ -797,6 +813,7 @@
       const photo = albumData[activeFolder].photos.find(p => p.id === photoId);
       if (photo) {
         albumData[activeFolder].cover = photo.url;
+        saveData();
         alert(`Cover image updated for ${activeFolder}!`);
       }
     }
@@ -833,6 +850,7 @@
     function deletePhoto(id) {
       if (!albumData[activeFolder]) return;
       albumData[activeFolder].photos = albumData[activeFolder].photos.filter(p => p.id !== id);
+      saveData();
       renderPhotos();
     }
 
@@ -842,6 +860,7 @@
       
       if (confirm(`Are you sure you want to delete ${selectedIds.length} selected photos?`)) {
         albumData[activeFolder].photos = albumData[activeFolder].photos.filter(p => !selectedIds.includes(p.id));
+        saveData();
         renderPhotos();
       }
     }
@@ -903,6 +922,7 @@
           }
 
           albumData[activeFolder].photos.push(newPhoto);
+          saveData();
           closeAddModal();
           renderPhotos();
         };
