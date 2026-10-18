@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memories For Ever - Leni & Jackson</title>
+  <!-- Importing a graceful cursive font matching Ghisella style -->
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #dfc194; /* Soft luxury gold */
+      --primary-hover: #edd3a9;
+      --bg-dark: #0f1115;
+      --card-bg: #161920;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border: #2a2f3d;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: linear-gradient(rgba(15, 17, 21, 0.88), rgba(15, 17, 21, 0.92)), 
+                        url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: rgba(22, 25, 32, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .album-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: 1px;
+      color: #ffffff;
+    }
+
+    .brand {
+      font-family: 'Great Vibes', cursive;
+      font-size: 1.75rem;
+      font-weight: 400;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1400px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    /* Banner Section (3x height increased to ~560px) with centered button */
+    .banner-section {
+      position: relative;
+      width: 100%;
+      height: 560px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 3rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 3rem;
+    }
+
+    .banner-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.9);
+    }
+
+    .banner-add-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(15, 17, 21, 0.85);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.25rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      transition: background 0.2s, transform 0.2s;
+      z-index: 5;
+    }
+
+    .banner-add-btn:hover {
+      background: var(--primary);
+      color: #0f1115;
+      transform: scale(1.1);
+    }
+
+    /* Search Memories Button positioned inside bottom-center of banner */
+    .btn-search-memories {
+      position: relative;
+      z-index: 2;
+      background: #ffffff;
+      color: #2563eb; /* Blue text color */
+      font-family: 'Great Vibes', cursive; /* Same font style as header */
+      font-size: 2rem;
+      padding: 0.6rem 2.5rem;
+      border-radius: 35px;
+      border: 1px solid #bfdbfe;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .btn-search-memories:hover {
+      background: #f8fafc;
+      transform: translateY(-3px);
+    }
+
+    /* Folder Grid Layout (6 columns) */
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1.25rem;
+      scroll-margin-top: 2rem; /* Ensures smooth scroll offset */
+    }
+
+    @media (max-width: 1400px) {
+      .album-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .album-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .album-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Album Card */
+    .album-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      text-align: center;
+    }
+
+    .album-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+    }
+
+    .cover-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .folder-cover-preview {
+      width: 100%;
+      aspect-ratio: 4 / 4;
+      object-fit: cover;
+      background-color: #1f2430;
+      display: block;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cover-add-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(15, 17, 21, 0.8);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .cover-add-btn:hover {
+      background: var(--primary);
+      color: #0f1115;
+      transform: scale(1.1);
+    }
+
+    .card-content {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+
+    .album-details {
+      margin-bottom: 0.75rem;
+    }
+
+    .album-details h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      font-family: "Georgia", serif;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: #0f1115;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: center;
+      transition: background 0.2s;
+      cursor: pointer;
+      border: none;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Photo Gallery View Styles */
+    .view-section {
+      display: none;
+    }
+
+    .view-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+
+    .folder-heading {
+      font-family: "Georgia", serif;
+      font-size: 2rem;
+      color: #ffffff;
+    }
+
+    .action-bar {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Selection Toolbar */
+    .selection-toolbar {
+      display: none;
+      background: #1f2430;
+      border: 1px solid var(--primary);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Horizontal Photo Grid inside folder */
+    .photo-grid {
+      display: flex;
+      gap: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 1.5rem;
+      scroll-behavior: smooth;
+    }
+
+    .photo-grid::-webkit-scrollbar {
+      height: 8px;
+    }
+    .photo-grid::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
+    .photo-grid::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    .photo-grid::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+
+    .photo-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: border-color 0.2s;
+      min-width: 240px;
+      max-width: 240px;
+      flex-shrink: 0;
+    }
+
+    .photo-card.selected {
+      border-color: var(--primary);
+    }
+
+    .photo-checkbox {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      z-index: 10;
+      accent-color: var(--primary);
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .photo-card img:hover {
+      transform: scale(1.03);
+    }
+
+    .photo-footer {
+      padding: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .photo-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 80px;
+    }
+
+    .photo-actions {
+      display: flex;
+      gap: 0.2rem;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.4rem;
+      font-size: 0.7rem;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-cover {
+      background: rgba(223, 193, 148, 0.15);
+      color: var(--primary);
+      border-color: rgba(223, 193, 148, 0.3);
+    }
+
+    .btn-cover:hover {
+      background: var(--primary);
+      color: #0f1115;
+    }
+
+    .btn-delete-single {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-delete-single:hover {
+      background: rgba(239, 68, 68, 0.3);
+      color: white;
+    }
+
+    /* Lightbox Modal */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(8px);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      flex-direction: column;
+      padding: 2rem;
+    }
+
+    .lightbox-img-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-width: 90vw;
+      max-height: 75vh;
+    }
+
+    .lightbox img {
+      max-width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .lightbox-caption {
+      margin-top: 1.25rem;
+      color: white;
+      font-family: "Georgia", serif;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2rem;
+      color: white;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    /* Add Image Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .modal-content h3 {
+      margin-bottom: 1rem;
+      font-family: "Georgia", serif;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      background: #0f1115;
+      border: 1px solid var(--border);
+      color: white;
+      border-radius: 6px;
+    }
+
+    .modal-content label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="album-title">Leni & Jackson</div>
+    <div class="brand">Memories For Ever</div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+    
+    <!-- VIEW 1: Folder Selection Grid -->
+    <div id="home-view" class="view-section" style="display: block;">
+      
+      <!-- Customizable Banner Section (3x Height with Centered Button) -->
+      <div class="banner-section">
+        <img id="mainBannerImg" src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80" alt="Wedding Banner" class="banner-img">
+        <button class="banner-add-btn" onclick="triggerBannerUpload()" title="Change Banner Image">+</button>
+        <button class="btn-search-memories" onclick="scrollToGrid()">Search Memories</button>
+      </div>
+
+      <!-- Folder Grid (Target for smooth scrolling) -->
+      <div class="album-grid" id="folder-grid">
+        <!-- Dynamically populated from script -->
+      </div>
+    </div>
+
+    <!-- VIEW 2: Individual Folder Photo Gallery -->
+    <div id="gallery-view" class="view-section">
+      <div class="view-header">
+        <h2 id="current-folder-title" class="folder-heading">Folder Title</h2>
+        <div class="action-bar">
+          <button class="btn btn-secondary" onclick="goHome()">🏠 Home</button>
+          <button class="btn" onclick="openAddModal()">Upload</button>
+        </div>
+      </div>
+
+      <!-- Bulk Selection Action Toolbar -->
+      <div id="selectionToolbar" class="selection-toolbar">
+        <span id="selectedCountText" style="font-size: 0.9rem; font-weight: 500;">0 photos selected</span>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="downloadSelected()">⬇ Download Selected</button>
+          <button class="btn" style="background: var(--danger); color: white; padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="deleteSelected()">🗑 Delete Selected</button>
+        </div>
+      </div>
+
+      <!-- Horizontal Photo Grid Container -->
+      <div id="photo-grid" class="photo-grid">
+        <!-- Dynamically populated horizontal photo items will appear here -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Lightbox Modal -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox(event, true)">&times;</button>
+    <div class="lightbox-img-container">
+      <img id="lightboxImg" src="" alt="Expanded View" onclick="event.stopPropagation()">
+    </div>
+    <div id="lightboxCaption" class="lightbox-caption"></div>
+  </div>
+
+  <!-- Add Image Modal with Local Explorer File Picker -->
+  <div id="addModal" class="modal">
+    <div class="modal-content">
+      <h3>Upload New Image</h3>
+      <label for="imgTitleInput">Photo Title / Caption</label>
+      <input type="text" id="imgTitleInput" placeholder="e.g. Sunset Portrait">
+      
+      <label for="fileInput">Select from Device Explorer</label>
+      <input type="file" id="fileInput" accept="image/*" style="padding: 0.5rem; cursor: pointer;">
+      
+      <div class="modal-actions" style="margin-top: 1rem;">
+        <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+        <button class="btn" onclick="addImageToFolder()">Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file inputs for direct banner and cover changes -->
+  <input type="file" id="coverFileInput" accept="image/*" style="display: none;" onchange="handleCoverFileSelected(event)">
+  <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="handleBannerFileSelected(event)">
+
+  <!-- Script for Navigation, View, Select, Delete, Download, Cover Selection, and Scroll -->
+  <script>
+    const albumData = {
+      "Save the Date": {
+        cover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
+        photos: [
+          { id: 1, title: "Save The Date 1", url: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80" },
+          { id: 2, title: "Save The Date 2", url: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1200&q=80" }
+        ]
+      },
+      "Engagement": {
+        cover: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80",
+        photos: [
+          { id: 3, title: "Ring Exchange", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80" },
+          { id: 4, title: "Couple Portrait", url: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1200&q=80" }
+        ]
+      },
+      "Marriage": {
+        cover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1200&q=80",
+        photos: [
+          { id: 5, title: "Altar Walk", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1200&q=80" },
+          { id: 6, title: "Vows", url: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1200&q=80" }
+        ]
+      },
+      "Highlights": {
+        cover: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1200&q=80",
+        photos: [
+          { id: 7, title: "Celebration Moment", url: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1200&q=80" }
+        ]
+      }
+    };
+
+    let activeFolder = "";
+    let folderToChangeCover = "";
+
+    function scrollToGrid() {
+      document.getElementById('folder-grid').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderFolders() {
+      const grid = document.getElementById('folder-grid');
+      grid.innerHTML = '';
+
+      Object.keys(albumData).forEach(folderName => {
+        const folder = albumData[folderName];
+        const card = document.createElement('div');
+        card.className = 'album-card';
+        card.innerHTML = `
+          <div class="cover-container">
+            <img src="${folder.cover}" alt="${folderName} Cover" class="folder-cover-preview">
+            <button class="cover-add-btn" onclick="triggerCoverUpload(event, '${folderName}')" title="Change Cover Image">+</button>
+          </div>
+          <div class="card-content">
+            <div class="album-details">
+              <h3>${folderName}</h3>
+            </div>
+            <button class="btn" onclick="openFolder('${folderName}')">View photos</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function triggerBannerUpload() {
+      document.getElementById('bannerFileInput').value = '';
+      document.getElementById('bannerFileInput').click();
+    }
+
+    function handleBannerFileSelected(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('mainBannerImg').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function triggerCoverUpload(event, folderName) {
+      event.stopPropagation();
+      folderToChangeCover = folderName;
+      document.getElementById('coverFileInput').value = '';
+      document.getElementById('coverFileInput').click();
+    }
+
+    function handleCoverFileSelected(event) {
+      const file = event.target.files[0];
+      if (file && folderToChangeCover) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          albumData[folderToChangeCover].cover = e.target.result;
+          renderFolders();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function openFolder(folderName) {
+      activeFolder = folderName;
+      document.getElementById('current-folder-title').textContent = folderName;
+      
+      document.getElementById('home-view').style.display = 'none';
+      document.getElementById('gallery-view').style.display = 'block';
+      
+      renderPhotos();
+    }
+
+    function goHome() {
+      document.getElementById('gallery-view').style.display = 'none';
+      document.getElementById('home-view').style.display = 'block';
+      renderFolders();
+    }
+
+    function renderPhotos() {
+      const grid = document.getElementById('photo-grid');
+      grid.innerHTML = '';
+      
+      const photos = albumData[activeFolder].photos || [];
+      
+      if (photos.length === 0) {
+        grid.innerHTML = '<p style="color: var(--text-muted);">No photos in this folder yet.</p>';
+        document.getElementById('selectionToolbar').style.display = 'none';
+        return;
+      }
+
+      photos.forEach(photo => {
+        const card = document.createElement('div');
+        card.className = 'photo-card';
+        card.id = `photo-card-${photo.id}`;
+        card.innerHTML = `
+          <input type="checkbox" class="photo-checkbox" data-id="${photo.id}" onchange="toggleSelect(${photo.id})">
+          <img src="${photo.url}" alt="${photo.title}" onclick="openLightbox('${photo.url}', '${photo.title}')">
+          <div class="photo-footer">
+            <span class="photo-title" title="${photo.title}">${photo.title}</span>
+            <div class="photo-actions">
+              <button class="btn-action btn-cover" onclick="setAsCover(${photo.id})" title="Set as Folder Cover">🖼 Cover</button>
+              <button class="btn-action" onclick="downloadSinglePhoto('${photo.url}', '${photo.title}')" title="Download">⬇</button>
+              <button class="btn-action btn-delete-single" onclick="deletePhoto(${photo.id})">🗑</button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      updateSelectionToolbar();
+    }
+
+    function downloadSinglePhoto(url, title) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function setAsCover(photoId) {
+      const photo = albumData[activeFolder].photos.find(p => p.id === photoId);
+      if (photo) {
+        albumData[activeFolder].cover = photo.url;
+        alert(`Cover image updated for ${activeFolder}!`);
+      }
+    }
+
+    function toggleSelect(id) {
+      const card = document.getElementById(`photo-card-${id}`);
+      const checkbox = card.querySelector('.photo-checkbox');
+      if (checkbox.checked) {
+        card.classList.add('selected');
+      } else {
+        card.classList.remove('selected');
+      }
+      updateSelectionToolbar();
+    }
+
+    function updateSelectionToolbar() {
+      const checkboxes = document.querySelectorAll('.photo-checkbox:checked');
+      const toolbar = document.getElementById('selectionToolbar');
+      const countText = document.getElementById('selectedCountText');
+
+      if (checkboxes.length > 0) {
+        toolbar.style.display = 'flex';
+        countText.textContent = `${checkboxes.length} photo${checkboxes.length > 1 ? 's' : ''} selected`;
+      } else {
+        toolbar.style.display = 'none';
+      }
+    }
+
+    function getSelectedIds() {
+      const checkboxes = document.querySelectorAll('.photo-checkbox:checked');
+      return Array.from(checkboxes).map(cb => Number(cb.dataset.id));
+    }
+
+    function deletePhoto(id) {
+      if (!albumData[activeFolder]) return;
+      albumData[activeFolder].photos = albumData[activeFolder].photos.filter(p => p.id !== id);
+      renderPhotos();
+    }
+
+    function deleteSelected() {
+      const selectedIds = getSelectedIds();
+      if (selectedIds.length === 0) return;
+      
+      if (confirm(`Are you sure you want to delete ${selectedIds.length} selected photos?`)) {
+        albumData[activeFolder].photos = albumData[activeFolder].photos.filter(p => !selectedIds.includes(p.id));
+        renderPhotos();
+      }
+    }
+
+    function downloadSelected() {
+      const selectedIds = getSelectedIds();
+      const photos = (albumData[activeFolder].photos || []).filter(p => selectedIds.includes(p.id));
+      
+      if (photos.length === 0) return;
+
+      photos.forEach(photo => {
+        const a = document.createElement('a');
+        a.href = photo.url;
+        a.download = `${photo.title}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+    }
+
+    function openLightbox(url, title) {
+      document.getElementById('lightboxImg').src = url;
+      document.getElementById('lightboxCaption').textContent = title;
+      document.getElementById('lightbox').style.display = 'flex';
+    }
+
+    function closeLightbox(event, force = false) {
+      if (force || event.target.id === 'lightbox') {
+        document.getElementById('lightbox').style.display = 'none';
+      }
+    }
+
+    function openAddModal() {
+      document.getElementById('imgTitleInput').value = '';
+      document.getElementById('fileInput').value = '';
+      document.getElementById('addModal').style.display = 'flex';
+    }
+
+    function closeAddModal() {
+      document.getElementById('addModal').style.display = 'none';
+    }
+
+    function addImageToFolder() {
+      const titleInput = document.getElementById('imgTitleInput').value.trim();
+      const fileInput = document.getElementById('fileInput');
+
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const title = titleInput || fileInput.files[0].name;
+          const newPhoto = {
+            id: Date.now(),
+            title: title,
+            url: e.target.result
+          };
+
+          if (!albumData[activeFolder].photos) {
+            albumData[activeFolder].photos = [];
+          }
+
+          albumData[activeFolder].photos.push(newPhoto);
+          closeAddModal();
+          renderPhotos();
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        alert("Please select an image file from your device.");
+      }
+    }
+
+    // Initialize home folder view on load
+    renderFolders();
+  </script>
+</body>
+</html>
