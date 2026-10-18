@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leni & Jackson — Wedding Celebration</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, html {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background-color: #0b0b0b;
+    }
+
+    .hero-wrapper {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 40px 30px;
+    }
+
+    /* Background image element with default picture */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('Green and White Simple Minimalist Floral Sparkle Illustrative Couple Wedding Invitation Video.jpg');
+      background-size: cover;
+      background-position: center 30%;
+      z-index: 0;
+      transition: background-image 0.4s ease-in-out;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        circle at center,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.45) 80%,
+        rgba(0, 0, 0, 0.65) 100%
+      );
+      z-index: 1;
+    }
+
+    /* Change Background Floating Controls */
+    .bg-controls {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+    }
+
+    .control-btn {
+      background: rgba(0, 0, 0, 0.45);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: all 0.25s ease;
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      color: #111;
+      border-color: #ffffff;
+    }
+
+    /* Flourish borders */
+    .flourish {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.85;
+      stroke: #ffffff;
+      fill: none;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    }
+    .flourish-tl { top: 24px; left: 24px; }
+    .flourish-tr { top: 24px; right: 24px; transform: scaleX(-1); }
+    .flourish-bl { bottom: 24px; left: 24px; transform: scaleY(-1); }
+    .flourish-br { bottom: 24px; right: 24px; transform: scale(-1); }
+
+    .top-header {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+    }
+
+    .invite-text {
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    .names-container {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      transform: translateY(-50%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 clamp(24px, 7vw, 110px);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .script-name {
+      font-family: 'Alex Brush', cursive;
+      font-size: clamp(3.8rem, 8vw, 7.5rem);
+      color: #ffffff;
+      line-height: 1;
+      font-weight: 400;
+      text-shadow: 0 3px 18px rgba(0, 0, 0, 0.65), 0 1px 4px rgba(0, 0, 0, 0.5);
+      user-select: none;
+    }
+
+    .bottom-bar {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .sparkle-line {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 260px;
+      opacity: 0.85;
+    }
+
+    .sparkle-line::before,
+    .sparkle-line::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #ffffff, transparent);
+    }
+
+    .sparkle-icon {
+      color: #ffffff;
+      font-size: 0.85rem;
+    }
+
+    .btn-enter {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      font-weight: 500;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      padding: 13px 42px;
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
+      transition: all 0.35s ease;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-enter:hover {
+      background: #ffffff;
+      color: #1a1a1a;
+      border-color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.35);
+    }
+
+    @media (max-width: 640px) {
+      .names-container {
+        top: 38%;
+        padding: 0 20px;
+      }
+      .flourish {
+        width: 70px;
+        height: 70px;
+      }
+      .bg-controls {
+        top: 16px;
+        right: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Controls to Upload File or Enter an Image Link -->
+  <div class="bg-controls">
+    <label class="control-btn" for="bg-file-input">Upload Photo</label>
+    <input type="file" id="bg-file-input" accept="image/*" style="display: none;">
+    <button class="control-btn" id="bg-url-btn">Image URL</button>
+  </div>
+
+  <div class="hero-wrapper">
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="overlay"></div>
+
+    <!-- Floral Corners -->
+    <svg class="flourish flourish-tl" viewBox="0 0 100 100" stroke-width="1.8">
+      <path d="M 10 90 Q 20 40 85 15 M 35 50 Q 25 35 40 25 M 50 35 Q 60 20 75 30 M 20 70 Q 5 60 12 45"/>
+      <circle cx="85" cy="15" r="2.5" fill="#fff"/>
+      <circle cx="40" cy="25" r="2" fill="#fff"/>
+      <circle cx="75" cy="30" r="2" fill="#fff"/>
+    </svg>
+    <svg class="flourish flourish-tr" viewBox="0 0 100 100" stroke-width="1.8">
+      <path d="M 10 90 Q 20 40 85 15 M 35 50 Q 25 35 40 25 M 50 35 Q 60 20 75 30 M 20 70 Q 5 60 12 45"/>
+      <circle cx="85" cy="15" r="2.5" fill="#fff"/>
+      <circle cx="40" cy="25" r="2" fill="#fff"/>
+      <circle cx="75" cy="30" r="2" fill="#fff"/>
+    </svg>
+    <svg class="flourish flourish-bl" viewBox="0 0 100 100" stroke-width="1.8">
+      <path d="M 10 90 Q 20 40 85 15 M 35 50 Q 25 35 40 25 M 50 35 Q 60 20 75 30 M 20 70 Q 5 60 12 45"/>
+      <circle cx="85" cy="15" r="2.5" fill="#fff"/>
+      <circle cx="40" cy="25" r="2" fill="#fff"/>
+      <circle cx="75" cy="30" r="2" fill="#fff"/>
+    </svg>
+    <svg class="flourish flourish-br" viewBox="0 0 100 100" stroke-width="1.8">
+      <path d="M 10 90 Q 20 40 85 15 M 35 50 Q 25 35 40 25 M 50 35 Q 60 20 75 30 M 20 70 Q 5 60 12 45"/>
+      <circle cx="85" cy="15" r="2.5" fill="#fff"/>
+      <circle cx="40" cy="25" r="2" fill="#fff"/>
+      <circle cx="75" cy="30" r="2" fill="#fff"/>
+    </svg>
+
+    <header class="top-header">
+      <p class="invite-text">Together With Their Families</p>
+    </header>
+
+    <div class="names-container">
+      <span class="script-name">Leni</span>
+      <span class="script-name">Jackson</span>
+    </div>
+
+    <footer class="bottom-bar">
+      <div class="sparkle-line">
+        <span class="sparkle-icon">✦</span>
+      </div>
+      <a href="#details" class="btn-enter">View Invitation</a>
+    </footer>
+  </div>
+
+  <script>
+    const heroBg = document.getElementById('hero-bg');
+    const fileInput = document.getElementById('bg-file-input');
+    const urlBtn = document.getElementById('bg-url-btn');
+
+    // 1. Upload local photo from device
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          heroBg.style.backgroundImage = `url('${event.target.result}')`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 2. Paste an online image link
+    urlBtn.addEventListener('click', () => {
+      const url = prompt('Enter image URL:');
+      if (url && url.trim() !== '') {
+        heroBg.style.backgroundImage = `url('${url.trim()}')`;
+      }
+    });
+  </script>
+</body>
+</html>
