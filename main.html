@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <h1></h1>LENI & JACKSON - Selection Album</h1> </title>
+    <title>LENI & JACKSON - Selection Album</title>
     <style>
         :root {
-            --bg-color: #f9f9fb;
-            --card-bg: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.92);
             --text-main: #2d3748;
             --text-muted: #718096;
             --accent-color: #3182ce;
@@ -24,7 +22,10 @@
         }
 
         body {
-            background-color: var(--bg-color);
+            /* Christian wedding background image with a dark overlay for readability */
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
             color: var(--text-main);
             display: flex;
             flex-direction: column;
@@ -36,8 +37,9 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 40px;
-            background: var(--card-bg);
+            background: rgba(255, 255, 255, 0.95);
             border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
         }
 
         .logo-area {
@@ -87,11 +89,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: box-shadow 0.2s ease;
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .album-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
 
         .album-info {
@@ -131,11 +135,13 @@
         .selection-banner {
             text-align: center;
             margin: 30px 0;
-            font-size: 15px;
+            font-size: 16px;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
         }
 
         .selection-banner a {
-            color: var(--accent-color);
+            color: #90cdf4;
             text-decoration: none;
             font-weight: 500;
         }
@@ -151,6 +157,7 @@
             padding: 24px;
             text-align: center;
             margin-bottom: 40px;
+            backdrop-filter: blur(5px);
         }
 
         section h2 {
@@ -183,13 +190,15 @@
             text-align: center;
             padding: 20px;
             font-size: 13px;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border-color);
-            background: var(--card-bg);
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
         }
 
         footer a {
-            color: var(--accent-color);
+            color: #90cdf4;
             text-decoration: none;
         }
 
@@ -219,7 +228,7 @@
 
     <header>
         <div class="logo-area">
-            <div class="logo-placeholder">Tuesday Lights</div>
+            <div class="logo-placeholder">Memories Forever Begins</div>
         </div>
         <div class="album-title">Leni & Jackson</div>
     </header>
@@ -228,61 +237,40 @@
         <div class="albums-container">
             <div class="album-card">
                 <div class="album-info">
-                    <span class="folder-title">Sd</span>
-                    <span class="photo-count">2367 photos</span>
+                    <span class="folder-title">Save The Date</span>
+                
                 </div>
                 <a href="#" class="btn">View photos</a>
             </div>
 
             <div class="album-card">
                 <div class="album-info">
-                    <span class="folder-title">Eng Cam 1</span>
-                    <span class="photo-count">3218 photos</span>
+                    <span class="folder-title">Engagement</span>
                 </div>
                 <a href="#" class="btn">View photos</a>
             </div>
 
             <div class="album-card">
                 <div class="album-info">
-                    <span class="folder-title">Eng Cam 2</span>
-                    <span class="photo-count">3119 photos</span>
+                    <span class="folder-title">Wedding</span>
                 </div>
                 <a href="#" class="btn">View photos</a>
             </div>
 
             <div class="album-card">
                 <div class="album-info">
-                    <span class="folder-title">Wed Cam 1 Part 1</span>
-                    <span class="photo-count">3697 photos</span>
+                    <span class="folder-title">Highlights</span>
                 </div>
                 <a href="#" class="btn">View photos</a>
             </div>
-
-            <div class="album-card">
-                <div class="album-info">
-                    <span class="folder-title">Wed Cam 2 Part 1</span>
-                    <span class="photo-count">4330 photos</span>
-                </div>
-                <a href="#" class="btn">View photos</a>
-            </div>
+           
         </div>
-
-        <div class="selection-banner">
-            Want to select photos ? <a href="#">Click here</a>
-        </div>
-
-        <section>
-            <h2>For Enquiry Contact Us</h2>
-            <div class="contact-details">
-                <a href="tel:918086324716">918086324716</a>
-                <a href="#" target="_blank">Instagram</a>
-                <a href="#" target="_blank">Youtube</a>
-            </div>
+    
         </section>
     </main>
 
     <footer>
-        © 2026 Tuesday Lights . All rights reserved. Powered By <a href="#" target="_blank">Digital Hugs</a>
+        © 2026 Leni&Jackson 
     </footer>
 
 </body>
