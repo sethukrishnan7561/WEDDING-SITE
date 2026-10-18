@@ -76,7 +76,7 @@
       width: 100%;
     }
 
-    /* Banner Section (3x height increased to ~560px) with centered button */
+    /* Banner Section */
     .banner-section {
       position: relative;
       width: 100%;
@@ -130,13 +130,12 @@
       transform: scale(1.1);
     }
 
-    /* Search Memories Button positioned inside bottom-center of banner */
     .btn-search-memories {
       position: relative;
       z-index: 2;
       background: #ffffff;
-      color: #2563eb; /* Blue text color */
-      font-family: 'Great Vibes', cursive; /* Same font style as header */
+      color: #2563eb;
+      font-family: 'Great Vibes', cursive;
       font-size: 2rem;
       padding: 0.6rem 2.5rem;
       border-radius: 35px;
@@ -151,29 +150,23 @@
       transform: translateY(-3px);
     }
 
-    /* Folder Grid Layout (6 columns) */
+    /* 6x6 Folder Grid Layout (Strictly 6 columns) */
     .album-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 2.25rem;
-      scroll-margin-top: 2rem; /* Ensures smooth scroll offset */
+      gap: 1.25rem;
+      scroll-margin-top: 2rem;
     }
 
-    @media (max-width: 1400px) {
+    @media (max-width: 1200px) {
       .album-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    @media (max-width: 1024px) {
-      .album-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
     }
 
     @media (max-width: 640px) {
       .album-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
@@ -574,14 +567,14 @@
     <!-- VIEW 1: Folder Selection Grid -->
     <div id="home-view" class="view-section" style="display: block;">
       
-      <!-- Customizable Banner Section (3x Height with Centered Button) -->
+      <!-- Customizable Banner Section -->
       <div class="banner-section">
         <img id="mainBannerImg" src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80" alt="Wedding Banner" class="banner-img">
         <button class="banner-add-btn" onclick="triggerBannerUpload()" title="Change Banner Image">+</button>
         <button class="btn-search-memories" onclick="scrollToGrid()">Search Memories</button>
       </div>
 
-      <!-- Folder Grid (Target for smooth scrolling) -->
+      <!-- Folder Grid Matrix (6 columns) -->
       <div class="album-grid" id="folder-grid">
         <!-- Dynamically populated from script -->
       </div>
@@ -644,7 +637,7 @@
   <input type="file" id="coverFileInput" accept="image/*" style="display: none;" onchange="handleCoverFileSelected(event)">
   <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="handleBannerFileSelected(event)">
 
-  <!-- Script for Navigation, View, Select, Delete, Download, Cover Selection, and Scroll -->
+  <!-- Script for Navigation, View, Select, Delete, Download, and Cover Selection -->
   <script>
     const albumData = {
       "Save the Date": {
