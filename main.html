@@ -238,11 +238,10 @@
     }
 
     .action-bar {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(120px, 1fr));
-      gap: 0.75rem;
+      display: flex;
+      justify-content: flex-end;
       width: 100%;
-      max-width: 320px;
+      max-width: 120px;
     }
 
     .btn-secondary {
@@ -438,55 +437,6 @@
       background: none;
       border: none;
     }
-
-    /* Add Image Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(5px);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .modal-content {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      padding: 2rem;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .modal-content h3 {
-      margin-bottom: 1rem;
-      font-family: "Georgia", serif;
-    }
-
-    .modal-content input {
-      width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      background: #0f1115;
-      border: 1px solid var(--border);
-      color: white;
-      border-radius: 6px;
-    }
-
-    .modal-content label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      display: block;
-      margin-bottom: 0.4rem;
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-    }
   </style>
 </head>
 <body>
@@ -503,9 +453,9 @@
     <!-- VIEW 1: Folder Selection Grid -->
     <div id="home-view" class="view-section" style="display: block;">
       
-      <!-- Banner Section with GitHub Image URL Support -->
+      <!-- Banner Section -->
       <div class="banner-section">
-        <img id="group1.img" src="" alt="Wedding Banner" class="banner-img">
+        <img id="group1.jpg" src="" alt="Wedding Banner" class="banner-img">
         <button class="btn-search-memories" onclick="scrollToGrid()">Search Memories</button>
       </div>
 
@@ -521,7 +471,6 @@
         <h2 id="current-folder-title" class="folder-heading">Folder Title</h2>
         <div class="action-bar">
           <button class="btn btn-secondary" onclick="goHome()">🏠 Home</button>
-          <button class="btn" onclick="openAddModal()">Upload</button>
         </div>
       </div>
 
@@ -551,35 +500,17 @@
     <div id="lightboxCaption" class="lightbox-caption"></div>
   </div>
 
-  <!-- Add Image Modal with Local Explorer File Picker -->
-  <div id="addModal" class="modal">
-    <div class="modal-content">
-      <h3>Upload New Image</h3>
-      <label for="imgTitleInput">Photo Title / Caption</label>
-      <input type="text" id="imgTitleInput" placeholder="e.g. Sunset Portrait">
-      
-      <label for="fileInput">Select from Device Explorer</label>
-      <input type="file" id="fileInput" accept="image/*" style="padding: 0.5rem; cursor: pointer;">
-      
-      <div class="modal-actions" style="margin-top: 1rem;">
-        <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
-        <button class="btn" onclick="addImageToFolder()">Upload</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Script with GitHub Banner URL & localStorage Support -->
+  <!-- Script with Static Local Data -->
   <script>
     // -------------------------------------------------------------------------
-    // HOW TO ADD A GITHUB IMAGE AS A BANNER:
-    // Upload your banner image into your GitHub repository, click on it, click 
-    // "Raw", and paste that raw image URL below inside the quotes.
-    // Example: "https://raw.githubusercontent.com/username/repo/main/banner.jpg"
+    // MANAGE YOUR IMAGES DIRECTLY IN CODE BELOW:
     // -------------------------------------------------------------------------
-    const githubBannerUrl = "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80";
+    
+    // Change your main banner image URL here:
+    const bannerImageUrl = "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80";
 
-    // Default album structure and covers (using standard URLs)
-    const defaultAlbumData = {
+    // Add, remove, or update folders and photos directly here:
+    const albumData = {
       "Save the Date": {
         cover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
         photos: [
@@ -609,20 +540,14 @@
       }
     };
 
-    let albumData = JSON.parse(localStorage.getItem('weddingAlbumData')) || defaultAlbumData;
     let activeFolder = "";
-
-    function saveData() {
-      localStorage.setItem('weddingAlbumData', JSON.stringify(albumData));
-    }
 
     function scrollToGrid() {
       document.getElementById('folder-grid').scrollIntoView({ behavior: 'smooth' });
     }
 
     function renderFolders() {
-      // Set banner image from the GitHub / remote URL constant above
-      document.getElementById('mainBannerImg').src = githubBannerUrl;
+      document.getElementById('mainBannerImg').src = bannerImageUrl;
 
       const grid = document.getElementById('folder-grid');
       grid.innerHTML = '';
@@ -685,7 +610,7 @@
             <span class="photo-title" title="${photo.title}">${photo.title}</span>
             <div class="photo-actions">
               <button class="btn-action" onclick="downloadSinglePhoto('${photo.url}', '${photo.title}')" title="Download">⬇</button>
-              <button class="btn-action btn-delete-single" onclick="deletePhoto(${photo.id})">🗑</button>
+              <button class="btn-action btn-delete-single" onclick="deletePhotoLocally(${photo.id})">🗑</button>
             </div>
           </div>
         `;
@@ -732,10 +657,9 @@
       return Array.from(checkboxes).map(cb => Number(cb.dataset.id));
     }
 
-    function deletePhoto(id) {
+    function deletePhotoLocally(id) {
       if (!albumData[activeFolder]) return;
       albumData[activeFolder].photos = albumData[activeFolder].photos.filter(p => p.id !== id);
-      saveData();
       renderPhotos();
     }
 
@@ -743,9 +667,8 @@
       const selectedIds = getSelectedIds();
       if (selectedIds.length === 0) return;
       
-      if (confirm(`Are you sure you want to delete ${selectedIds.length} selected photos?`)) {
+      if (confirm(`Remove ${selectedIds.length} selected photos from view?`)) {
         albumData[activeFolder].photos = albumData[activeFolder].photos.filter(p => !selectedIds.includes(p.id));
-        saveData();
         renderPhotos();
       }
     }
@@ -775,45 +698,6 @@
     function closeLightbox(event, force = false) {
       if (force || event.target.id === 'lightbox') {
         document.getElementById('lightbox').style.display = 'none';
-      }
-    }
-
-    function openAddModal() {
-      document.getElementById('imgTitleInput').value = '';
-      document.getElementById('fileInput').value = '';
-      document.getElementById('addModal').style.display = 'flex';
-    }
-
-    function closeAddModal() {
-      document.getElementById('addModal').style.display = 'none';
-    }
-
-    function addImageToFolder() {
-      const titleInput = document.getElementById('imgTitleInput').value.trim();
-      const fileInput = document.getElementById('fileInput');
-
-      if (fileInput.files && fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const title = titleInput || fileInput.files[0].name;
-          const newPhoto = {
-            id: Date.now(),
-            title: title,
-            url: e.target.result
-          };
-
-          if (!albumData[activeFolder].photos) {
-            albumData[activeFolder].photos = [];
-          }
-
-          albumData[activeFolder].photos.push(newPhoto);
-          saveData();
-          closeAddModal();
-          renderPhotos();
-        };
-        reader.readAsDataURL(fileInput.files[0]);
-      } else {
-        alert("Please select an image file from your device.");
       }
     }
 
