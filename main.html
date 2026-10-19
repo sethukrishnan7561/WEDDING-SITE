@@ -302,9 +302,9 @@
     // 3. FETCH PHOTOS DIRECTLY FROM GITHUB REPO (PUBLIC FOR ALL VISITORS)
     // --------------------------------------------------------------------
     async function fetchGitHubFolder(folderId) {
-      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
-      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
-      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+      const owner = localStorage.getItem("sethukrishnan7561") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("WEDDING-SITE") || DEFAULT_REPO;
+      const branch = localStorage.getItem("main") || DEFAULT_BRANCH;
       const token = localStorage.getItem("gh_token");
 
       const url = `https://api.github.com/repos/${owner}/${repo}/contents/uploads/${folderId}?ref=${branch}`;
