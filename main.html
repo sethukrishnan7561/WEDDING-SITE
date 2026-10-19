@@ -103,33 +103,6 @@
       filter: brightness(0.9);
     }
 
-    .banner-add-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(15, 17, 21, 0.85);
-      color: var(--primary);
-      border: 1px solid var(--primary);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.25rem;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-      transition: background 0.2s, transform 0.2s;
-      z-index: 5;
-    }
-
-    .banner-add-btn:hover {
-      background: var(--primary);
-      color: #0f1115;
-      transform: scale(1.1);
-    }
-
     .btn-search-memories {
       position: relative;
       z-index: 2;
@@ -201,32 +174,6 @@
       background-color: #1f2430;
       display: block;
       border-bottom: 1px solid var(--border);
-    }
-
-    .cover-add-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(15, 17, 21, 0.8);
-      color: var(--primary);
-      border: 1px solid var(--primary);
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-      transition: background 0.2s, transform 0.2s;
-    }
-
-    .cover-add-btn:hover {
-      background: var(--primary);
-      color: #0f1115;
-      transform: scale(1.1);
     }
 
     .card-content {
@@ -407,19 +354,19 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 80px;
+      max-width: 120px;
     }
 
     .photo-actions {
       display: flex;
-      gap: 0.2rem;
+      gap: 0.3rem;
     }
 
     .btn-action {
       background: rgba(255, 255, 255, 0.05);
       color: var(--text);
       border: 1px solid var(--border);
-      padding: 0.25rem 0.4rem;
+      padding: 0.25rem 0.5rem;
       font-size: 0.7rem;
       border-radius: 4px;
       cursor: pointer;
@@ -431,17 +378,6 @@
       background: rgba(255, 255, 255, 0.15);
       border-color: var(--primary);
       color: var(--primary);
-    }
-
-    .btn-cover {
-      background: rgba(223, 193, 148, 0.15);
-      color: var(--primary);
-      border-color: rgba(223, 193, 148, 0.3);
-    }
-
-    .btn-cover:hover {
-      background: var(--primary);
-      color: #0f1115;
     }
 
     .btn-delete-single {
@@ -567,10 +503,9 @@
     <!-- VIEW 1: Folder Selection Grid -->
     <div id="home-view" class="view-section" style="display: block;">
       
-      <!-- Customizable Banner Section -->
+      <!-- Banner Section with GitHub Image URL Support -->
       <div class="banner-section">
-        <img id="mainBannerImg" src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80" alt="Wedding Banner" class="banner-img">
-        <button class="banner-add-btn" onclick="triggerBannerUpload()" title="Change Banner Image">+</button>
+        <img id="mainBannerImg" src="" alt="Wedding Banner" class="banner-img">
         <button class="btn-search-memories" onclick="scrollToGrid()">Search Memories</button>
       </div>
 
@@ -633,13 +568,17 @@
     </div>
   </div>
 
-  <!-- Hidden file inputs for direct banner and cover changes -->
-  <input type="file" id="coverFileInput" accept="image/*" style="display: none;" onchange="handleCoverFileSelected(event)">
-  <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="handleBannerFileSelected(event)">
-
-  <!-- Script with localStorage Support -->
+  <!-- Script with GitHub Banner URL & localStorage Support -->
   <script>
-    // Default album structure and banners
+    // -------------------------------------------------------------------------
+    // HOW TO ADD A GITHUB IMAGE AS A BANNER:
+    // Upload your banner image into your GitHub repository, click on it, click 
+    // "Raw", and paste that raw image URL below inside the quotes.
+    // Example: "https://raw.githubusercontent.com/username/repo/main/banner.jpg"
+    // -------------------------------------------------------------------------
+    const githubBannerUrl = "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80";
+
+    // Default album structure and covers (using standard URLs)
     const defaultAlbumData = {
       "Save the Date": {
         cover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
@@ -670,18 +609,11 @@
       }
     };
 
-    const defaultBannerUrl = "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80";
-
-    // Load data from browser localStorage or fallback to defaults
     let albumData = JSON.parse(localStorage.getItem('weddingAlbumData')) || defaultAlbumData;
-    let bannerUrl = localStorage.getItem('weddingBannerUrl') || defaultBannerUrl;
-
     let activeFolder = "";
-    let folderToChangeCover = "";
 
     function saveData() {
       localStorage.setItem('weddingAlbumData', JSON.stringify(albumData));
-      localStorage.setItem('weddingBannerUrl', bannerUrl);
     }
 
     function scrollToGrid() {
@@ -689,7 +621,9 @@
     }
 
     function renderFolders() {
-      document.getElementById('mainBannerImg').src = bannerUrl;
+      // Set banner image from the GitHub / remote URL constant above
+      document.getElementById('mainBannerImg').src = githubBannerUrl;
+
       const grid = document.getElementById('folder-grid');
       grid.innerHTML = '';
 
@@ -700,7 +634,6 @@
         card.innerHTML = `
           <div class="cover-container">
             <img src="${folder.cover}" alt="${folderName} Cover" class="folder-cover-preview">
-            <button class="cover-add-btn" onclick="triggerCoverUpload(event, '${folderName}')" title="Change Cover Image">+</button>
           </div>
           <div class="card-content">
             <div class="album-details">
@@ -711,44 +644,6 @@
         `;
         grid.appendChild(card);
       });
-    }
-
-    function triggerBannerUpload() {
-      document.getElementById('bannerFileInput').value = '';
-      document.getElementById('bannerFileInput').click();
-    }
-
-    function handleBannerFileSelected(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          bannerUrl = e.target.result;
-          document.getElementById('mainBannerImg').src = bannerUrl;
-          saveData();
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function triggerCoverUpload(event, folderName) {
-      event.stopPropagation();
-      folderToChangeCover = folderName;
-      document.getElementById('coverFileInput').value = '';
-      document.getElementById('coverFileInput').click();
-    }
-
-    function handleCoverFileSelected(event) {
-      const file = event.target.files[0];
-      if (file && folderToChangeCover) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          albumData[folderToChangeCover].cover = e.target.result;
-          saveData();
-          renderFolders();
-        };
-        reader.readAsDataURL(file);
-      }
     }
 
     function openFolder(folderName) {
@@ -789,7 +684,6 @@
           <div class="photo-footer">
             <span class="photo-title" title="${photo.title}">${photo.title}</span>
             <div class="photo-actions">
-              <button class="btn-action btn-cover" onclick="setAsCover(${photo.id})" title="Set as Folder Cover">🖼 Cover</button>
               <button class="btn-action" onclick="downloadSinglePhoto('${photo.url}', '${photo.title}')" title="Download">⬇</button>
               <button class="btn-action btn-delete-single" onclick="deletePhoto(${photo.id})">🗑</button>
             </div>
@@ -807,15 +701,6 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    }
-
-    function setAsCover(photoId) {
-      const photo = albumData[activeFolder].photos.find(p => p.id === photoId);
-      if (photo) {
-        albumData[activeFolder].cover = photo.url;
-        saveData();
-        alert(`Cover image updated for ${activeFolder}!`);
-      }
     }
 
     function toggleSelect(id) {
