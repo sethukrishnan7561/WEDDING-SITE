@@ -18,1145 +18,494 @@
       --success: #10b981;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body {
       background-color: var(--bg-dark);
       background-image: linear-gradient(rgba(15, 17, 21, 0.88), rgba(15, 17, 21, 0.92)), 
                         url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      background-size: cover; background-position: center; background-attachment: fixed;
+      color: var(--text); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column;
     }
 
     /* 3-Column Header */
     header {
-      background: rgba(22, 25, 32, 0.85);
-      backdrop-filter: blur(10px);
-      padding: 1rem 2rem;
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-      z-index: 50;
+      background: rgba(22, 25, 32, 0.85); backdrop-filter: blur(10px);
+      padding: 1rem 2rem; display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; border-bottom: 1px solid var(--border);
+      position: relative; z-index: 50;
     }
 
-    .header-left {
-      justify-self: start;
-    }
+    .header-left { justify-self: start; }
+    .album-title { font-family: 'Great Vibes', cursive; font-size: 2rem; color: #ffffff; }
+    .brand-center { font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: var(--primary); text-align: center; }
+    .header-right { justify-self: end; }
 
-    .album-title {
-      font-family: 'Great Vibes', cursive;
-      font-size: 2rem;
-      font-weight: 400;
-      letter-spacing: 1px;
-      color: #ffffff;
-    }
-
-    .brand-center {
-      font-family: 'Great Vibes', cursive;
-      font-size: 2.2rem;
-      font-weight: 400;
-      color: var(--primary);
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
-
-    .header-right {
-      justify-self: end;
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-    }
-
-    /* Admin Login Button matching 'View photos' button with right-side indicator dot */
+    /* Admin Button: HIDDEN by default from public */
     .btn-admin {
-      background: var(--primary);
-      color: #0f1115;
-      border: none;
-      padding: 0.5rem 1.1rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      transition: background 0.2s, transform 0.2s;
+      display: none;
+      background: var(--primary); color: #0f1115; border: none;
+      padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem;
+      font-weight: 600; cursor: pointer; align-items: center; gap: 0.6rem;
     }
-
-    .btn-admin:hover {
-      background: var(--primary-hover);
-      transform: translateY(-1px);
-    }
+    .btn-admin:hover { background: var(--primary-hover); }
 
     .sync-indicator-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background-color: var(--danger); /* Red by default */
+      width: 10px; height: 10px; border-radius: 50%;
+      background-color: var(--danger);
       box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
       display: inline-block;
-      flex-shrink: 0;
-      transition: background-color 0.3s, box-shadow 0.3s;
     }
-
     .sync-indicator-dot.connected {
-      background-color: var(--success); /* Green when verified */
+      background-color: var(--success);
       box-shadow: 0 0 8px rgba(16, 185, 129, 0.9);
     }
 
-    /* Main Container */
-    .container {
-      max-width: 1400px;
-      margin: 2.5rem auto;
-      padding: 0 1.5rem;
-      flex-grow: 1;
-      width: 100%;
-    }
+    .container { max-width: 1400px; margin: 2.5rem auto; padding: 0 1.5rem; flex-grow: 1; width: 100%; }
 
     /* Banner Slideshow */
     .banner-section {
-      position: relative;
-      width: 100%;
-      height: 560px;
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 3rem;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-      border: 1px solid var(--border);
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      padding-bottom: 3rem;
+      position: relative; width: 100%; height: 560px; border-radius: 12px;
+      overflow: hidden; margin-bottom: 3rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border); display: flex; justify-content: center;
+      align-items: flex-end; padding-bottom: 3rem;
     }
-
     .banner-slide {
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity 1.2s ease-in-out;
-      filter: brightness(0.85);
+      position: absolute; inset: 0; background-size: cover; background-position: center;
+      opacity: 0; transition: opacity 1.2s ease-in-out; filter: brightness(0.85);
     }
-
-    .banner-slide.active {
-      opacity: 1;
-    }
+    .banner-slide.active { opacity: 1; }
 
     .btn-search-memories {
-      position: relative;
-      z-index: 10;
-      background: #ffffff;
-      color: #2563eb;
-      font-family: 'Great Vibes', cursive;
-      font-size: 2rem;
-      padding: 0.6rem 2.5rem;
-      border-radius: 35px;
-      border: 1px solid #bfdbfe;
-      cursor: pointer;
+      position: relative; z-index: 10; background: #ffffff; color: #2563eb;
+      font-family: 'Great Vibes', cursive; font-size: 2rem; padding: 0.6rem 2.5rem;
+      border-radius: 35px; border: 1px solid #bfdbfe; cursor: pointer;
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-      transition: transform 0.2s, background 0.2s;
     }
 
-    .btn-search-memories:hover {
-      background: #f8fafc;
-      transform: translateY(-3px);
-    }
-
-    /* Folder Grid */
-    .album-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.5rem;
-      scroll-margin-top: 2rem;
-    }
-
-    @media (max-width: 1024px) {
-      .album-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 640px) {
-      .album-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    /* Grid */
+    .album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+    @media (max-width: 1024px) { .album-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .album-grid { grid-template-columns: 1fr; } }
 
     .album-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
       text-align: center;
     }
-
-    .album-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--primary);
-    }
-
-    .cover-container {
-      width: 100%;
-      height: 200px;
-      overflow: hidden;
-      background-color: #1f2430;
-    }
-
-    .folder-cover-preview {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      border-bottom: 1px solid var(--border);
-      transition: transform 0.3s ease;
-    }
-
-    .album-card:hover .folder-cover-preview {
-      transform: scale(1.03);
-    }
-
-    .card-content {
-      padding: 1.1rem 1rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      flex-grow: 1;
-    }
-
-    .album-details h3 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--text);
-      font-family: "Georgia", serif;
-      margin-bottom: 0.9rem;
-    }
+    .cover-container { width: 100%; height: 200px; background-color: #1f2430; }
+    .folder-cover-preview { width: 100%; height: 100%; object-fit: cover; }
+    .card-content { padding: 1.1rem 1rem; }
+    .album-details h3 { font-size: 1.15rem; color: var(--text); font-family: "Georgia", serif; margin-bottom: 0.9rem; }
 
     .btn {
-      background: var(--primary);
-      color: #0f1115;
-      padding: 0.55rem 0.75rem;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-align: center;
-      transition: background 0.2s;
-      cursor: pointer;
-      border: none;
-      display: inline-block;
-      width: 100%;
+      background: var(--primary); color: #0f1115; padding: 0.55rem 0.75rem;
+      border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; width: 100%;
     }
 
-    .btn:hover {
-      background: var(--primary-hover);
-    }
-
-    /* Photo Gallery View */
-    .view-section {
-      display: none;
-    }
-
+    /* Gallery View */
+    .view-section { display: none; }
     .view-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1rem;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;
     }
+    .folder-heading { font-family: "Georgia", serif; font-size: 2rem; color: #ffffff; }
 
-    .folder-heading {
-      font-family: "Georgia", serif;
-      font-size: 2rem;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+    .action-bar { display: flex; gap: 0.75rem; }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); width: auto; padding: 0.5rem 1rem; }
+    .btn-upload-admin { display: none; width: auto; padding: 0.5rem 1rem; }
 
-    .sync-badge {
-      font-size: 0.85rem;
-      color: var(--primary);
-      font-family: system-ui, sans-serif;
-      font-weight: normal;
-    }
-
-    .action-bar {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(120px, 1fr));
-      gap: 0.75rem;
-      width: 100%;
-      max-width: 320px;
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    /* Selection Toolbar */
-    .selection-toolbar {
-      display: none;
-      background: #1f2430;
-      border: 1px solid var(--primary);
-      padding: 0.75rem 1.25rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-      justify-content: space-between;
-      align-items: center;
-      animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Horizontal Photo Grid */
-    .photo-grid {
-      display: flex;
-      gap: 1.5rem;
-      overflow-x: auto;
-      padding-bottom: 1.5rem;
-      scroll-behavior: smooth;
-    }
-
-    .photo-grid::-webkit-scrollbar {
-      height: 8px;
-    }
-    .photo-grid::-webkit-scrollbar-track {
-      background: rgba(0,0,0,0.2);
-      border-radius: 4px;
-    }
-    .photo-grid::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 4px;
-    }
-    .photo-grid::-webkit-scrollbar-thumb:hover {
-      background: var(--primary);
-    }
-
+    .photo-grid { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1.5rem; }
     .photo-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      transition: border-color 0.2s;
-      min-width: 240px;
-      max-width: 240px;
-      flex-shrink: 0;
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+      overflow: hidden; min-width: 240px; max-width: 240px; flex-shrink: 0;
     }
+    .photo-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
+    .photo-footer { padding: 0.6rem; display: flex; justify-content: space-between; align-items: center; }
+    .photo-title { font-size: 0.75rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+    .btn-delete-admin { display: none; background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; }
 
-    .photo-card.selected {
-      border-color: var(--primary);
-    }
-
-    .photo-checkbox {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      z-index: 10;
-      accent-color: var(--primary);
-    }
-
-    .photo-card img {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-      display: block;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .photo-card img:hover {
-      transform: scale(1.03);
-    }
-
-    .photo-footer {
-      padding: 0.6rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .photo-title {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 130px;
-    }
-
-    .photo-actions {
-      display: flex;
-      gap: 0.3rem;
-    }
-
-    .btn-action {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 0.25rem 0.45rem;
-      font-size: 0.75rem;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .btn-action:hover {
-      background: rgba(255, 255, 255, 0.15);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .btn-delete-single {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--danger);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .btn-delete-single:hover {
-      background: rgba(239, 68, 68, 0.3);
-      color: white;
-    }
-
-    /* Lightbox Modal */
-    .lightbox {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.92);
-      backdrop-filter: blur(8px);
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-      flex-direction: column;
-      padding: 2rem;
-    }
-
-    .lightbox-img-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      max-width: 90vw;
-      max-height: 75vh;
-    }
-
-    .lightbox img {
-      max-width: 100%;
-      max-height: 75vh;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    .lightbox-caption {
-      margin-top: 1.25rem;
-      color: white;
-      font-family: "Georgia", serif;
-      font-size: 1.1rem;
-      text-align: center;
-    }
-
-    .lightbox-close {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      font-size: 2rem;
-      color: white;
-      cursor: pointer;
-      background: none;
-      border: none;
-    }
-
-    /* Popups and Modals */
+    /* Modals */
     .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(5px);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000;
     }
-
     .modal-content {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      padding: 2rem;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 440px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      padding: 2rem; border-radius: 12px; width: 100%; max-width: 440px;
     }
-
-    .modal-content h3 {
-      margin-bottom: 0.5rem;
-      font-family: "Georgia", serif;
-    }
-
     .modal-content input {
-      width: 100%;
-      padding: 0.7rem;
-      margin-top: 0.25rem;
-      margin-bottom: 1rem;
-      background: #0f1115;
-      border: 1px solid var(--border);
-      color: white;
-      border-radius: 6px;
+      width: 100%; padding: 0.7rem; margin-top: 0.25rem; margin-bottom: 1rem;
+      background: #0f1115; border: 1px solid var(--border); color: white; border-radius: 6px;
     }
-
-    .modal-content label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      display: block;
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-      margin-top: 1rem;
-    }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header>
-    <div class="header-left">
-      <div class="album-title">Leni & Jackson</div>
-    </div>
+    <div class="header-left"><div class="album-title">Leni & Jackson</div></div>
     <div class="brand-center">Memories For Ever</div>
     <div class="header-right">
       <button class="btn-admin" id="btnAdmin" onclick="openAdminPanel()">
-        Admin Login
-        <span class="sync-indicator-dot" id="syncDot" title="Sync status indicator"></span>
+        Admin Panel
+        <span class="sync-indicator-dot" id="syncDot"></span>
       </button>
     </div>
   </header>
 
-  <!-- Main Container -->
   <main class="container">
-    
-    <!-- VIEW 1: Folder Selection Grid -->
     <div id="home-view" class="view-section" style="display: block;">
-      
-      <!-- Banner Carousel -->
-      <div class="banner-section" id="bannerSection">
+      <div class="banner-section">
         <div class="banner-slide active" style="background-image: url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80');"></div>
         <div class="banner-slide" style="background-image: url('https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1920&q=80');"></div>
         <div class="banner-slide" style="background-image: url('https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1920&q=80');"></div>
-        <div class="banner-slide" style="background-image: url('https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1920&q=80');"></div>
-        <div class="banner-slide" style="background-image: url('https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1920&q=80');"></div>
-        <div class="banner-slide" style="background-image: url('https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1920&q=80');"></div>
-
-        <button class="btn-search-memories" onclick="scrollToGrid()">Search Memories</button>
+        <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
-
-      <!-- Folder Grid -->
       <div class="album-grid" id="folder-grid"></div>
     </div>
 
-    <!-- VIEW 2: Individual Folder Photo Gallery -->
     <div id="gallery-view" class="view-section">
       <div class="view-header">
-        <h2 class="folder-heading">
-          <span id="current-folder-title">Folder Title</span>
-          <span class="sync-badge" id="syncStatusBadge"></span>
-        </h2>
+        <h2 class="folder-heading" id="current-folder-title">Folder</h2>
         <div class="action-bar">
           <button class="btn btn-secondary" onclick="goHome()">🏠 Home</button>
-          <button class="btn" onclick="openAddModal()">Upload</button>
+          <button class="btn btn-upload-admin" id="btnUploadAdmin" onclick="openAddModal()">Upload</button>
         </div>
       </div>
-
-      <!-- Selection Toolbar -->
-      <div id="selectionToolbar" class="selection-toolbar">
-        <span id="selectedCountText" style="font-size: 0.9rem; font-weight: 500;">0 photos selected</span>
-        <div style="display: flex; gap: 0.75rem;">
-          <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="downloadSelected()">⬇ Download Selected</button>
-          <button class="btn" style="background: var(--danger); color: white; padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="deleteSelected()">🗑 Delete Selected</button>
-        </div>
-      </div>
-
-      <!-- Photo Grid -->
       <div id="photo-grid" class="photo-grid"></div>
     </div>
-
   </main>
 
-  <!-- Lightbox Modal -->
-  <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
-    <button class="lightbox-close" onclick="closeLightbox(event, true)">&times;</button>
-    <div class="lightbox-img-container">
-      <img id="lightboxImg" src="" alt="Expanded View" onclick="event.stopPropagation()">
-    </div>
-    <div id="lightboxCaption" class="lightbox-caption"></div>
-  </div>
-
-  <!-- Add Image Modal -->
+  <!-- Upload Modal -->
   <div id="addModal" class="modal">
     <div class="modal-content">
-      <h3>Upload New Image</h3>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Images are cached locally and committed directly to GitHub if connected.</p>
-      
-      <label for="imgTitleInput">Photo Title / Caption</label>
-      <input type="text" id="imgTitleInput" placeholder="e.g. Sunset Portrait">
-      
-      <label for="fileInput">Select from Device Explorer</label>
-      <input type="file" id="fileInput" accept="image/*" style="padding: 0.5rem; cursor: pointer;">
-      
+      <h3>Upload Photo to GitHub</h3>
+      <input type="text" id="imgTitleInput" placeholder="Photo Title">
+      <input type="file" id="fileInput" accept="image/*">
       <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
-        <button class="btn" onclick="addImageToFolder()">Upload</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('addModal').style.display='none'">Cancel</button>
+        <button class="btn" id="btnSubmitUpload" onclick="uploadPhotoToGitHub()">Upload & Push</button>
       </div>
     </div>
   </div>
 
-  <!-- Direct GitHub Sync Admin Panel Modal (No intermediate username/password) -->
+  <!-- Admin Credentials Modal -->
   <div id="adminPanelModal" class="modal">
     <div class="modal-content">
-      <h3>GitHub Sync Admin Panel</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Enter repository details and access token to activate real-time GitHub sync.</p>
-      
-      <label for="ghOwner">GitHub Username / Organization</label>
-      <input type="text" id="ghOwner" placeholder="e.g. your-username">
-      
-      <label for="ghRepo">Repository Name</label>
-      <input type="text" id="ghRepo" placeholder="e.g. wedding-memories">
-      
-      <label for="ghBranch">Branch</label>
+      <h3>Admin GitHub Sync</h3>
+      <label style="font-size: 0.8rem; color: var(--text-muted);">Repository Username</label>
+      <input type="text" id="ghOwner" placeholder="e.g. your-github-username">
+      <label style="font-size: 0.8rem; color: var(--text-muted);">Repository Name</label>
+      <input type="text" id="ghRepo" placeholder="e.g. wedding-website">
+      <label style="font-size: 0.8rem; color: var(--text-muted);">Branch</label>
       <input type="text" id="ghBranch" value="main">
-      
-      <label for="ghToken">Personal Access Token (with 'repo' scope)</label>
+      <label style="font-size: 0.8rem; color: var(--text-muted);">Personal Access Token (PAT)</label>
       <input type="password" id="ghToken" placeholder="ghp_...">
-      
       <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeAdminPanel()">Cancel</button>
-        <button class="btn" id="btnAdminSave" onclick="saveAdminAndSync()">Connect & Sync</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('adminPanelModal').style.display='none'">Cancel</button>
+        <button class="btn" onclick="saveAdminSettings()">Save & Connect</button>
       </div>
     </div>
   </div>
 
   <script>
-    // -------------------------------------------------------------
-    // BANNER CONTROLLER
-    // -------------------------------------------------------------
-    const bannerSlides = document.querySelectorAll('.banner-slide');
-    let currentBannerIdx = 0;
+    // --------------------------------------------------------------------
+    // 1. HARDCODED PUBLIC REPO SETTINGS (Anyone visiting loads from here)
+    // --------------------------------------------------------------------
+    const DEFAULT_OWNER = "YOUR_GITHUB_USERNAME"; // Replace with your GitHub username
+    const DEFAULT_REPO = "YOUR_REPOSITORY_NAME";   // Replace with your repository name
+    const DEFAULT_BRANCH = "main";
+    const SECRET_ADMIN_PASS = "admin2026";         // Secret passcode to show admin button
+
+    // Banner
+    const slides = document.querySelectorAll('.banner-slide');
+    let curSlide = 0;
     setInterval(() => {
-      bannerSlides[currentBannerIdx].classList.remove('active');
-      currentBannerIdx = (currentBannerIdx + 1) % bannerSlides.length;
-      bannerSlides[currentBannerIdx].classList.add('active');
+      slides[curSlide].classList.remove('active');
+      curSlide = (curSlide + 1) % slides.length;
+      slides[curSlide].classList.add('active');
     }, 4500);
 
-    // -------------------------------------------------------------
-    // DIRECT GITHUB SYNC ADMIN PANEL & CONNECTION STATUS (GREEN / RED)
-    // -------------------------------------------------------------
-    function updateSyncDot(isOk) {
-      const dot = document.getElementById('syncDot');
-      if (isOk) {
-        dot.classList.add('connected');
-        dot.title = "Connected to GitHub repository (Green)";
-      } else {
-        dot.classList.remove('connected');
-        dot.title = "Connection not established (Red)";
-      }
-    }
+    const folders = [
+      { id: "save-the-date", title: "Save the date", defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
+      { id: "engagement", title: "Engagement", defaultCover: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" },
+      { id: "wedding", title: "Wedding", defaultCover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" },
+      { id: "highlights", title: "Highlights", defaultCover: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=800&q=80" }
+    ];
 
-    async function checkRepoHealth() {
-      const owner = localStorage.getItem('gh_owner');
-      const repo = localStorage.getItem('gh_repo');
-      const token = localStorage.getItem('gh_token');
+    let currentFolderId = "";
+    let isAdmin = false;
 
-      if (!owner || !repo || !token) {
-        updateSyncDot(false);
-        return;
+    // --------------------------------------------------------------------
+    // 2. SECRET ACCESS GATE
+    // --------------------------------------------------------------------
+    function checkAdminAccess() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("key") === SECRET_ADMIN_PASS) {
+        localStorage.setItem("admin_authorized", "true");
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      try {
-        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        });
-        updateSyncDot(res.ok);
-      } catch (e) {
-        updateSyncDot(false);
+      if (localStorage.getItem("admin_authorized") === "true") {
+        isAdmin = true;
+        document.getElementById("btnAdmin").style.display = "inline-flex";
+        document.getElementById("btnUploadAdmin").style.display = "inline-block";
       }
     }
 
     function openAdminPanel() {
-      const modal = document.getElementById('adminPanelModal');
-      modal.style.display = 'flex';
-      document.getElementById('ghOwner').value = localStorage.getItem('gh_owner') || '';
-      document.getElementById('ghRepo').value = localStorage.getItem('gh_repo') || '';
-      document.getElementById('ghBranch').value = localStorage.getItem('gh_branch') || 'main';
-      document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
+      document.getElementById("adminPanelModal").style.display = "flex";
+      document.getElementById("ghOwner").value = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      document.getElementById("ghRepo").value = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      document.getElementById("ghBranch").value = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+      document.getElementById("ghToken").value = localStorage.getItem("gh_token") || "";
     }
 
-    function closeAdminPanel() {
-      document.getElementById('adminPanelModal').style.display = 'none';
+    async function saveAdminSettings() {
+      const owner = document.getElementById("ghOwner").value.trim();
+      const repo = document.getElementById("ghRepo").value.trim();
+      const branch = document.getElementById("ghBranch").value.trim();
+      const token = document.getElementById("ghToken").value.trim();
+
+      localStorage.setItem("gh_owner", owner);
+      localStorage.setItem("gh_repo", repo);
+      localStorage.setItem("gh_branch", branch);
+      localStorage.setItem("gh_token", token);
+
+      document.getElementById("adminPanelModal").style.display = "none";
+      await checkHealth();
+      renderFolders();
     }
 
-    async function saveAdminAndSync() {
-      const owner = document.getElementById('ghOwner').value.trim();
-      const repo = document.getElementById('ghRepo').value.trim();
-      const branch = document.getElementById('ghBranch').value.trim() || 'main';
-      const token = document.getElementById('ghToken').value.trim();
+    async function checkHealth() {
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const token = localStorage.getItem("gh_token");
 
-      if (!owner || !repo || !token) {
-        alert('Please fill out all repository fields and your Personal Access Token.');
-        return;
+      const dot = document.getElementById("syncDot");
+      try {
+        const headers = { "Accept": "application/vnd.github+json" };
+        if (token) headers["Authorization"] = `token ${token}`;
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
+        if (res.ok) {
+          dot.classList.add("connected");
+        } else {
+          dot.classList.remove("connected");
+        }
+      } catch (e) {
+        dot.classList.remove("connected");
       }
+    }
 
-      const saveBtn = document.getElementById('btnAdminSave');
-      saveBtn.innerText = 'Connecting...';
+    // --------------------------------------------------------------------
+    // 3. FETCH PHOTOS DIRECTLY FROM GITHUB REPO (PUBLIC FOR ALL VISITORS)
+    // --------------------------------------------------------------------
+    async function fetchGitHubFolder(folderId) {
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+      const token = localStorage.getItem("gh_token");
+
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/uploads/${folderId}?ref=${branch}`;
+      const headers = { "Accept": "application/vnd.github+json" };
+      if (token) headers["Authorization"] = `token ${token}`;
 
       try {
-        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        });
-
-        if (!res.ok) {
-          updateSyncDot(false);
-          alert('Connection failed. Please verify your repository name, username, and token permissions.');
-          return;
-        }
-
-        localStorage.setItem('gh_owner', owner);
-        localStorage.setItem('gh_repo', repo);
-        localStorage.setItem('gh_branch', branch);
-        localStorage.setItem('gh_token', token);
-
-        updateSyncDot(true);
-        closeAdminPanel();
-        alert('Successfully connected to GitHub repository! Live sync is active.');
+        const res = await fetch(url, { headers });
+        if (!res.ok) return [];
+        const files = await res.json();
+        // Return only image files
+        return files.filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f.name));
       } catch (err) {
-        updateSyncDot(false);
-        alert('Connection error: ' + err.message);
-      } finally {
-        saveBtn.innerText = 'Connect & Sync';
+        console.error("Failed fetching GitHub folder:", err);
+        return [];
       }
-    }
-
-    // -------------------------------------------------------------
-    // PERSISTENCE (IndexedDB)
-    // -------------------------------------------------------------
-    let db;
-    const DB_NAME = 'MemoriesForEverDB';
-    const DB_VERSION = 1;
-    const STORE_NAME = 'photos';
-
-    function initDB() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e) => {
-          const dbInstance = e.target.result;
-          if (!dbInstance.objectStoreNames.contains(STORE_NAME)) {
-            const store = dbInstance.createObjectStore(STORE_NAME, { keyPath: 'id' });
-            store.createIndex('folder', 'folder', { unique: false });
-          }
-        };
-        req.onsuccess = (e) => {
-          db = e.target.result;
-          resolve(db);
-        };
-        req.onerror = (e) => reject(e);
-      });
-    }
-
-    async function dbSavePhoto(record) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction([STORE_NAME], 'readwrite');
-        tx.objectStore(STORE_NAME).put(record);
-        tx.oncomplete = () => resolve();
-        tx.onerror = (e) => reject(e);
-      });
-    }
-
-    async function dbGetPhotosByFolder(folder) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction([STORE_NAME], 'readonly');
-        const req = tx.objectStore(STORE_NAME).index('folder').getAll(folder);
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = (e) => reject(e);
-      });
-    }
-
-    async function dbDeletePhoto(id) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction([STORE_NAME], 'readwrite');
-        tx.objectStore(STORE_NAME).delete(id);
-        tx.oncomplete = () => resolve();
-        tx.onerror = (e) => reject(e);
-      });
-    }
-
-    // -------------------------------------------------------------
-    // FOLDERS SETUP
-    // -------------------------------------------------------------
-    const folderConfig = [
-      { id: "Save the date", title: "Save the date", defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
-      { id: "Engagement",    title: "Engagement",    defaultCover: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" },
-      { id: "Wedding",       title: "Wedding",       defaultCover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" },
-      { id: "Highlights",    title: "Highlights",    defaultCover: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=800&q=80" }
-    ];
-
-    let activeFolder = "";
-
-    function scrollToGrid() {
-      document.getElementById('folder-grid').scrollIntoView({ behavior: 'smooth' });
     }
 
     async function renderFolders() {
-      const grid = document.getElementById('folder-grid');
-      grid.innerHTML = '';
+      const grid = document.getElementById("folder-grid");
+      grid.innerHTML = "";
 
-      for (const folder of folderConfig) {
-        const photos = await dbGetPhotosByFolder(folder.id);
-        const coverUrl = photos.length > 0 ? photos[photos.length - 1].url : folder.defaultCover;
+      for (const f of folders) {
+        const files = await fetchGitHubFolder(f.id);
+        const coverSrc = files.length > 0 ? files[files.length - 1].download_url : f.defaultCover;
 
-        const card = document.createElement('div');
-        card.className = 'album-card';
+        const card = document.createElement("div");
+        card.className = "album-card";
         card.innerHTML = `
           <div class="cover-container">
-            <img src="${coverUrl}" alt="${folder.title} Cover" class="folder-cover-preview">
+            <img src="${coverSrc}" class="folder-cover-preview" alt="${f.title}">
           </div>
           <div class="card-content">
-            <div class="album-details">
-              <h3>${folder.title}</h3>
-            </div>
-            <button class="btn" onclick="openFolder('${folder.id}')">View photos</button>
+            <div class="album-details"><h3>${f.title}</h3></div>
+            <button class="btn" onclick="openFolder('${f.id}', '${f.title}')">View photos</button>
           </div>
         `;
         grid.appendChild(card);
       }
     }
 
-    async function openFolder(folderName) {
-      activeFolder = folderName;
-      document.getElementById('current-folder-title').textContent = folderName;
-      document.getElementById('home-view').style.display = 'none';
-      document.getElementById('gallery-view').style.display = 'block';
+    async function openFolder(id, title) {
+      currentFolderId = id;
+      document.getElementById("current-folder-title").textContent = title;
+      document.getElementById("home-view").style.display = "none";
+      document.getElementById("gallery-view").style.display = "block";
       await renderPhotos();
     }
 
     function goHome() {
-      document.getElementById('gallery-view').style.display = 'none';
-      document.getElementById('home-view').style.display = 'block';
+      document.getElementById("gallery-view").style.display = "none";
+      document.getElementById("home-view").style.display = "block";
       renderFolders();
     }
 
     async function renderPhotos() {
-      const grid = document.getElementById('photo-grid');
-      grid.innerHTML = '';
-      
-      const photos = await dbGetPhotosByFolder(activeFolder);
-      
-      if (photos.length === 0) {
-        grid.innerHTML = '<p style="color: var(--text-muted); padding: 1.5rem 0;">No photos in this folder yet. Click "Upload" to add some.</p>';
-        document.getElementById('selectionToolbar').style.display = 'none';
+      const grid = document.getElementById("photo-grid");
+      grid.innerHTML = "<p style='color: var(--text-muted);'>Loading memories...</p>";
+
+      const files = await fetchGitHubFolder(currentFolderId);
+      grid.innerHTML = "";
+
+      if (files.length === 0) {
+        grid.innerHTML = "<p style='color: var(--text-muted); padding: 1.5rem 0;'>No photos found in this collection.</p>";
         return;
       }
 
-      photos.forEach(photo => {
-        const card = document.createElement('div');
-        card.className = 'photo-card';
-        card.id = `photo-card-${photo.id}`;
+      files.forEach(file => {
+        const card = document.createElement("div");
+        card.className = "photo-card";
         card.innerHTML = `
-          <input type="checkbox" class="photo-checkbox" data-id="${photo.id}" onchange="toggleSelect('${photo.id}')">
-          <img src="${photo.url}" alt="${photo.title}" onclick="openLightbox('${photo.url}', '${photo.title}')">
+          <img src="${file.download_url}" alt="${file.name}" onclick="window.open('${file.download_url}', '_blank')">
           <div class="photo-footer">
-            <span class="photo-title" title="${photo.title}">${photo.title}</span>
-            <div class="photo-actions">
-              <button class="btn-action" onclick="downloadSinglePhoto('${photo.url}', '${photo.title}')" title="Download">⬇</button>
-              <button class="btn-action btn-delete-single" onclick="deletePhoto('${photo.id}')">🗑</button>
-            </div>
+            <span class="photo-title">${file.name}</span>
+            <button class="btn-delete-admin" style="${isAdmin ? 'display:inline-block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
           </div>
         `;
         grid.appendChild(card);
       });
-      updateSelectionToolbar();
     }
 
-    function downloadSinglePhoto(url, title) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${title || 'photo'}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-    function toggleSelect(id) {
-      const card = document.getElementById(`photo-card-${id}`);
-      const checkbox = card.querySelector('.photo-checkbox');
-      if (checkbox.checked) {
-        card.classList.add('selected');
-      } else {
-        card.classList.remove('selected');
-      }
-      updateSelectionToolbar();
-    }
-
-    function updateSelectionToolbar() {
-      const checkboxes = document.querySelectorAll('.photo-checkbox:checked');
-      const toolbar = document.getElementById('selectionToolbar');
-      const countText = document.getElementById('selectedCountText');
-
-      if (checkboxes.length > 0) {
-        toolbar.style.display = 'flex';
-        countText.textContent = `${checkboxes.length} photo${checkboxes.length > 1 ? 's' : ''} selected`;
-      } else {
-        toolbar.style.display = 'none';
-      }
-    }
-
-    function getSelectedIds() {
-      const checkboxes = document.querySelectorAll('.photo-checkbox:checked');
-      return Array.from(checkboxes).map(cb => cb.dataset.id);
-    }
-
-    async function deletePhoto(id) {
-      const photos = await dbGetPhotosByFolder(activeFolder);
-      const target = photos.find(p => p.id === id);
-      if (!target) return;
-
-      await syncWithGitHub('delete', target);
-      await dbDeletePhoto(id);
-      await renderPhotos();
-    }
-
-    async function deleteSelected() {
-      const selectedIds = getSelectedIds();
-      if (selectedIds.length === 0) return;
-      
-      if (confirm(`Are you sure you want to delete ${selectedIds.length} selected photos?`)) {
-        const photos = await dbGetPhotosByFolder(activeFolder);
-        for (const id of selectedIds) {
-          const target = photos.find(p => p.id === id);
-          if (target) {
-            await syncWithGitHub('delete', target);
-            await dbDeletePhoto(id);
-          }
-        }
-        await renderPhotos();
-      }
-    }
-
-    async function downloadSelected() {
-      const selectedIds = getSelectedIds();
-      const photos = await dbGetPhotosByFolder(activeFolder);
-      const selectedPhotos = photos.filter(p => selectedIds.includes(p.id));
-
-      selectedPhotos.forEach(photo => {
-        const a = document.createElement('a');
-        a.href = photo.url;
-        a.download = `${photo.title || 'photo'}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      });
-    }
-
-    function openLightbox(url, title) {
-      document.getElementById('lightboxImg').src = url;
-      document.getElementById('lightboxCaption').textContent = title;
-      document.getElementById('lightbox').style.display = 'flex';
-    }
-
-    function closeLightbox(event, force = false) {
-      if (force || event.target.id === 'lightbox') {
-        document.getElementById('lightbox').style.display = 'none';
-      }
-    }
-
+    // --------------------------------------------------------------------
+    // 4. ADMIN WRITES (UPLOAD & DELETE TO GITHUB VIA REST API)
+    // --------------------------------------------------------------------
     function openAddModal() {
-      document.getElementById('imgTitleInput').value = '';
-      document.getElementById('fileInput').value = '';
-      document.getElementById('addModal').style.display = 'flex';
-    }
-
-    function closeAddModal() {
-      document.getElementById('addModal').style.display = 'none';
+      document.getElementById("imgTitleInput").value = "";
+      document.getElementById("fileInput").value = "";
+      document.getElementById("addModal").style.display = "flex";
     }
 
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (err) => reject(err);
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
         reader.readAsDataURL(file);
       });
     }
 
-    async function addImageToFolder() {
-      const titleInput = document.getElementById('imgTitleInput').value.trim();
-      const fileInput = document.getElementById('fileInput');
+    async function uploadPhotoToGitHub() {
+      const token = localStorage.getItem("gh_token");
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
 
-      if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const dataUrl = await fileToBase64(file);
-        const title = titleInput || file.name.replace(/\.[^/.]+$/, "");
-
-        const newPhoto = {
-          id: 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-          folder: activeFolder,
-          title: title,
-          name: file.name,
-          url: dataUrl,
-          sha: null
-        };
-
-        await dbSavePhoto(newPhoto);
-        closeAddModal();
-        await syncWithGitHub('upload', newPhoto);
-        await renderPhotos();
-      } else {
-        alert("Please select an image file from your device.");
-      }
-    }
-
-    // -------------------------------------------------------------
-    // AUTOMATIC GITHUB REST API SYNC & STATUS INDICATOR
-    // -------------------------------------------------------------
-    async function syncWithGitHub(action, record) {
-      const owner = localStorage.getItem('gh_owner');
-      const repo = localStorage.getItem('gh_repo');
-      const branch = localStorage.getItem('gh_branch') || 'main';
-      const token = localStorage.getItem('gh_token');
-
-      if (!owner || !repo || !token) {
-        updateSyncDot(false);
+      if (!token) {
+        alert("Please click Admin Panel and enter your GitHub PAT token first!");
         return;
       }
 
-      const badge = document.getElementById('syncStatusBadge');
-      if (badge) badge.innerText = `(${action}ing to GitHub...)`;
+      const fileInput = document.getElementById("fileInput");
+      if (!fileInput.files[0]) {
+        alert("Please pick an image.");
+        return;
+      }
 
-      const safeFolder = record.folder.toLowerCase().replace(/\s+/g, '-');
-      const safeFilename = `${record.id}_${record.name || 'image.jpg'}`;
-      const path = `uploads/${safeFolder}/${safeFilename}`;
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+      const file = fileInput.files[0];
+      const btn = document.getElementById("btnSubmitUpload");
+      btn.innerText = "Uploading...";
+      btn.disabled = true;
 
       try {
-        if (action === 'upload') {
-          const base64Content = record.url.split(',')[1];
-          const payload = {
-            message: `Add ${record.title} to ${record.folder}`,
-            content: base64Content,
+        const base64 = await fileToBase64(file);
+        const filename = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
+        const path = `uploads/${currentFolderId}/${filename}`;
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": `token ${token.trim()}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `Add ${filename} via Admin Panel`,
+            content: base64,
             branch: branch
-          };
+          })
+        });
 
-          const res = await fetch(url, {
-            method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/vnd.github.v3+json'
-            },
-            body: JSON.stringify(payload)
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            record.sha = data.content.sha;
-            await dbSavePhoto(record);
-            if (badge) badge.innerText = `(GitHub: Synced)`;
-            updateSyncDot(true);
-          } else {
-            const err = await res.json();
-            if (badge) badge.innerText = `(GitHub error: ${err.message})`;
-            updateSyncDot(false);
-          }
-        } else if (action === 'delete') {
-          let sha = record.sha;
-          if (!sha) {
-            const getRes = await fetch(`${url}?ref=${branch}`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (getRes.ok) {
-              const fileData = await getRes.json();
-              sha = fileData.sha;
-            }
-          }
-
-          if (sha) {
-            const res = await fetch(url, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                message: `Delete ${record.title} from ${record.folder}`,
-                sha: sha,
-                branch: branch
-              })
-            });
-            if (res.ok) {
-              if (badge) badge.innerText = `(GitHub: Deleted)`;
-              updateSyncDot(true);
-            } else {
-              updateSyncDot(false);
-            }
-          }
+        if (res.ok) {
+          document.getElementById("addModal").style.display = "none";
+          alert("Uploaded successfully to GitHub! All devices can now see this photo.");
+          await renderPhotos();
+        } else {
+          const err = await res.json();
+          alert("GitHub error: " + err.message);
         }
       } catch (err) {
-        console.error('GitHub Sync failed:', err);
-        if (badge) badge.innerText = `(GitHub sync failed)`;
-        updateSyncDot(false);
+        alert("Upload error: " + err.message);
       } finally {
-        setTimeout(() => { if (badge) badge.innerText = ''; }, 3500);
+        btn.innerText = "Upload & Push";
+        btn.disabled = false;
       }
     }
 
-    // -------------------------------------------------------------
-    // INIT
-    // -------------------------------------------------------------
-    window.addEventListener('DOMContentLoaded', async () => {
-      await initDB();
+    async function deletePhotoFromGitHub(path, sha) {
+      const token = localStorage.getItem("gh_token");
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+
+      if (!token) {
+        alert("Unauthorized. Set your token in Admin Panel.");
+        return;
+      }
+
+      if (!confirm("Are you sure you want to permanently delete this photo from GitHub?")) return;
+
+      try {
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+        const res = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": `token ${token.trim()}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `Delete ${path} via Admin Panel`,
+            sha: sha,
+            branch: branch
+          })
+        });
+
+        if (res.ok) {
+          alert("Photo deleted from repository.");
+          await renderPhotos();
+        } else {
+          const err = await res.json();
+          alert("Delete failed: " + err.message);
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      checkAdminAccess();
+      await checkHealth();
       await renderFolders();
-      await checkRepoHealth();
     });
   </script>
 </body>
