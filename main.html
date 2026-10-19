@@ -76,7 +76,7 @@
       width: 100%;
     }
 
-    /* Banner Section */
+    /* Banner Section (3x height increased to ~560px) with centered button */
     .banner-section {
       position: relative;
       width: 100%;
@@ -130,12 +130,13 @@
       transform: scale(1.1);
     }
 
+    /* Search Memories Button positioned inside bottom-center of banner */
     .btn-search-memories {
       position: relative;
       z-index: 2;
       background: #ffffff;
-      color: #2563eb;
-      font-family: 'Great Vibes', cursive;
+      color: #2563eb; /* Blue text color */
+      font-family: 'Great Vibes', cursive; /* Same font style as header */
       font-size: 2rem;
       padding: 0.6rem 2.5rem;
       border-radius: 35px;
@@ -150,23 +151,29 @@
       transform: translateY(-3px);
     }
 
-    /* 6x6 Folder Grid Layout (Strictly 6 columns) */
+    /* Folder Grid Layout (6 columns) */
     .album-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 1.25rem;
-      scroll-margin-top: 2rem;
+      scroll-margin-top: 2rem; /* Ensures smooth scroll offset */
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1400px) {
       .album-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .album-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
     @media (max-width: 640px) {
       .album-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
       }
     }
 
@@ -567,14 +574,14 @@
     <!-- VIEW 1: Folder Selection Grid -->
     <div id="home-view" class="view-section" style="display: block;">
       
-      <!-- Customizable Banner Section -->
+      <!-- Customizable Banner Section (3x Height with Centered Button) -->
       <div class="banner-section">
-        <img href="family.jpg">
+        <img id="mainBannerImg" src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80" alt="Wedding Banner" class="banner-img">
         <button class="banner-add-btn" onclick="triggerBannerUpload()" title="Change Banner Image">+</button>
         <button class="btn-search-memories" onclick="scrollToGrid()">Search Memories</button>
       </div>
 
-      <!-- Folder Grid Matrix (6 columns) -->
+      <!-- Folder Grid (Target for smooth scrolling) -->
       <div class="album-grid" id="folder-grid">
         <!-- Dynamically populated from script -->
       </div>
@@ -637,10 +644,9 @@
   <input type="file" id="coverFileInput" accept="image/*" style="display: none;" onchange="handleCoverFileSelected(event)">
   <input type="file" id="bannerFileInput" accept="image/*" style="display: none;" onchange="handleBannerFileSelected(event)">
 
-  <!-- Script with localStorage Support -->
+  <!-- Script for Navigation, View, Select, Delete, Download, Cover Selection, and Scroll -->
   <script>
-    // Default album structure and banners
-    const defaultAlbumData = {
+    const albumData = {
       "Save the Date": {
         cover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
         photos: [
@@ -670,26 +676,14 @@
       }
     };
 
-    const defaultBannerUrl = "https://github.com/sethukrishnan7561/WEDDING-SITE/blob/main/family.jpg";
-
-    // Load data from browser localStorage or fallback to defaults
-    let albumData = JSON.parse(localStorage.getItem('weddingAlbumData')) || defaultAlbumData;
-    let bannerUrl = localStorage.getItem('weddingBannerUrl') || defaultBannerUrl;
-
     let activeFolder = "";
     let folderToChangeCover = "";
-
-    function saveData() {
-      localStorage.setItem('weddingAlbumData', JSON.stringify(albumData));
-      localStorage.setItem('weddingBannerUrl', bannerUrl);
-    }
 
     function scrollToGrid() {
       document.getElementById('folder-grid').scrollIntoView({ behavior: 'smooth' });
     }
 
     function renderFolders() {
-      document.getElementById('mainBannerImg').src = bannerUrl;
       const grid = document.getElementById('folder-grid');
       grid.innerHTML = '';
 
@@ -723,9 +717,7 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          bannerUrl = e.target.result;
-          document.getElementById('mainBannerImg').src = bannerUrl;
-          saveData();
+          document.getElementById('mainBannerImg').src = e.target.result;
         };
         reader.readAsDataURL(file);
       }
@@ -744,7 +736,6 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           albumData[folderToChangeCover].cover = e.target.result;
-          saveData();
           renderFolders();
         };
         reader.readAsDataURL(file);
@@ -813,7 +804,6 @@
       const photo = albumData[activeFolder].photos.find(p => p.id === photoId);
       if (photo) {
         albumData[activeFolder].cover = photo.url;
-        saveData();
         alert(`Cover image updated for ${activeFolder}!`);
       }
     }
@@ -850,7 +840,6 @@
     function deletePhoto(id) {
       if (!albumData[activeFolder]) return;
       albumData[activeFolder].photos = albumData[activeFolder].photos.filter(p => p.id !== id);
-      saveData();
       renderPhotos();
     }
 
@@ -860,7 +849,6 @@
       
       if (confirm(`Are you sure you want to delete ${selectedIds.length} selected photos?`)) {
         albumData[activeFolder].photos = albumData[activeFolder].photos.filter(p => !selectedIds.includes(p.id));
-        saveData();
         renderPhotos();
       }
     }
@@ -922,7 +910,6 @@
           }
 
           albumData[activeFolder].photos.push(newPhoto);
-          saveData();
           closeAddModal();
           renderPhotos();
         };
