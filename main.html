@@ -211,10 +211,8 @@
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
 
-      <!-- 4-Column Reel-Style Grid Section connected with GitHub Repo Dynamic Files -->
-      <div class="reel-grid-section" id="reelGridSection">
-        <p style="color: var(--text-muted);">Loading repository videos...</p>
-      </div>
+      <!-- 4-Column Reel-Style Grid Section with Manual Video Linking -->
+      <div class="reel-grid-section" id="reelGridSection"></div>
 
       <div class="album-grid" id="folder-grid"></div>
     </div>
@@ -282,51 +280,27 @@
     }, 4500);
 
     // --------------------------------------------------------------------
-    // FETCH VIDEOS FROM GITHUB REPOSITORY & BUILD REELS WITH BUILT-IN CONTROLS
+    // MANUAL VIDEO LINKING ARRAY (Add your direct video paths or URLs here)
     // --------------------------------------------------------------------
-    async function loadGitHubVideos() {
-      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
-      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
-      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
-      const token = localStorage.getItem("gh_token");
+    const manualVideos = [
+      ["video1.mp4", "video2.mp4", "video3.mp4", "video4.mp4"], // Column 1 sliding videos
+      ["video2.mp4", "video3.mp4", "video4.mp4", "video1.mp4"], // Column 2 sliding videos
+      ["video3.mp4", "video4.mp4", "video1.mp4", "video2.mp4"], // Column 3 sliding videos
+      ["video4.mp4", "video1.mp4", "video2.mp4", "video3.mp4"]  // Column 4 sliding videos
+    ];
 
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/videos?ref=${branch}`;
-      const headers = { "Accept": "application/vnd.github+json" };
-      if (token) headers["Authorization"] = `token ${token}`;
-
-      let videoFiles = [];
-      try {
-        const res = await fetch(url, { headers });
-        if (res.ok) {
-          const files = await res.json();
-          videoFiles = files.filter(f => /\.(mp4|mov|webm)$/i.test(f.name)).map(f => f.download_url);
-        }
-      } catch (err) {
-        console.error("Could not fetch videos from GitHub folder /videos:", err);
-      }
-
-      // Fallback sample videos if repository folder is empty
-      if (videoFiles.length === 0) {
-        videoFiles = [
-          "https://assets.mixkit.co/videos/preview/mixkit-bride-and-groom-walking-in-a-park-41586-large.mp4",
-          "https://assets.mixkit.co/videos/preview/mixkit-happy-couple-dancing-at-a-wedding-41589-large.mp4",
-          "https://assets.mixkit.co/videos/preview/mixkit-wedding-rings-close-up-41584-large.mp4",
-          "https://assets.mixkit.co/videos/preview/mixkit-bride-holding-her-bouquet-41588-large.mp4"
-        ];
-      }
-
+    function loadManualReels() {
       const gridSection = document.getElementById("reelGridSection");
       gridSection.innerHTML = "";
 
-      // Create 4 Reel Cards
-      for (let i = 0; i < 4; i++) {
+      manualVideos.forEach((videoList, i) => {
         const card = document.createElement("div");
         card.className = "reel-card";
         
         card.innerHTML = `
           <div class="reel-container" id="container_${i}">
             <div class="reel-slider-track" id="track_${i}">
-              ${videoFiles.map(src => `<video class="reel-slide" src="${src}" muted playsinline></video>`).join('')}
+              ${videoList.map(src => `<video class="reel-slide" src="${src}" muted playsinline></video>`).join('')}
             </div>
             <div class="custom-player-controls">
               <div class="video-progress-bar" onclick="seekVideo(event, 'active_vid_${i}')">
@@ -346,9 +320,8 @@
         `;
         gridSection.appendChild(card);
 
-        // Initialize Slider & Active Video Reference
-        setupReelWithControls(i, videoFiles.length);
-      }
+        setupReelWithControls(i, videoList.length);
+      });
     }
 
     function setupReelWithControls(cardIdx, totalSlides) {
@@ -356,20 +329,17 @@
       let currentIdx = 0;
 
       function updateActiveVideo() {
-        // Remove active tag & pause all videos in this track
-        Array.from(track.children).forEach((vid, idx) => {
+        Array.from(track.children).forEach((vid) => {
           vid.pause();
           vid.id = "";
           vid.currentTime = 0;
         });
 
-        // Set current active video
         const activeVid = track.children[currentIdx];
         activeVid.id = `active_vid_${cardIdx}`;
         activeVid.play().catch(() => {});
         document.getElementById(`playbtn_${cardIdx}`).textContent = "❚❚";
 
-        // Bind progress updates
         activeVid.ontimeupdate = () => {
           if (activeVid.duration) {
             const percent = (activeVid.currentTime / activeVid.duration) * 100;
@@ -388,10 +358,8 @@
         };
       }
 
-      // Start first video
       updateActiveVideo();
 
-      // Slow automatic slide transition every 7 seconds if video hasn't finished
       setInterval(() => {
         currentIdx = (currentIdx + 1) % totalSlides;
         track.style.transform = `translateX(-${currentIdx * 100}%)`;
@@ -478,7 +446,6 @@
       document.getElementById("adminPanelModal").style.display = "none";
       await checkHealth();
       renderFolders();
-      loadGitHubVideos();
     }
 
     async function checkHealth() {
@@ -709,7 +676,7 @@
       checkAdminAccess();
       await checkHealth();
       await renderFolders();
-      await loadGitHubVideos();
+      loadManualReels();
     });
   </script>
 </body>
