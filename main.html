@@ -82,24 +82,13 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
-    /* 4-Column Reel-Style Grid Section (Strict 9:12 aspect ratio container) */
-    .reel-grid-section {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem; width: 100%;
+    /* Single Large Video Player Section (Same size and dimensions as the banner) */
+    .single-video-section {
+      position: relative; width: 100%; height: 560px; border-radius: 12px;
+      overflow: hidden; margin-bottom: 3rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border); background: #000;
     }
-    @media (max-width: 1024px) { .reel-grid-section { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 640px) { .reel-grid-section { grid-template-columns: 1fr; } }
-
-    .reel-card {
-      background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
-      overflow: hidden; display: flex; flex-direction: column;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-    .reel-container {
-      width: 100%;
-      aspect-ratio: 9 / 12;
-      background-color: #000; position: relative; overflow: hidden;
-    }
-    .reel-video {
+    .single-video-player {
       width: 100%; height: 100%; object-fit: cover;
     }
 
@@ -184,35 +173,9 @@
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
 
-      <!-- 4-Column Individual Video Section (Manual Links) -->
-      <div class="reel-grid-section">
-        <!-- Video Player 1 -->
-        <div class="reel-card">
-          <div class="reel-container">
-            <video class="reel-video" controls src="YOUR_VIDEO_LINK_1.mp4"></video>
-          </div>
-        </div>
-
-        <!-- Video Player 2 -->
-        <div class="reel-card">
-          <div class="reel-container">
-            <video class="reel-video" controls src="YOUR_VIDEO_LINK_2.mp4"></video>
-          </div>
-        </div>
-
-        <!-- Video Player 3 -->
-        <div class="reel-card">
-          <div class="reel-container">
-            <video class="reel-video" controls src="YOUR_VIDEO_LINK_3.mp4"></video>
-          </div>
-        </div>
-
-        <!-- Video Player 4 -->
-        <div class="reel-card">
-          <div class="reel-container">
-            <video class="reel-video" controls src="YOUR_VIDEO_LINK_4.mp4"></video>
-          </div>
-        </div>
+      <!-- Single Large Video Player Section (Exact same size as banner) -->
+      <div class="single-video-section">
+        <video class="single-video-player" controls src="YOUR_VIDEO_LINK.mpv"></video>
       </div>
 
       <div class="album-grid" id="folder-grid"></div>
@@ -517,7 +480,7 @@
     async function deletePhotoFromGitHub(path, sha) {
       const token = localStorage.getItem("gh_token");
       const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
-      const repo = localStorage.getItem("gh_repo") || DEFAULT_RAW_REPO = DEFAULT_REPO;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
       const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
 
       if (!token) {
