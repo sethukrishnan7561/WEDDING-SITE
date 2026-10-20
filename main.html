@@ -62,7 +62,7 @@
 
     .container { max-width: 1400px; margin: 2.5rem auto; padding: 0 1.5rem; flex-grow: 1; width: 100%; }
 
-    /* Banner Slideshow[cite: 1] */
+    /* Banner Slideshow */
     .banner-section {
       position: relative; width: 100%; height: 560px; border-radius: 12px;
       overflow: hidden; margin-bottom: 2rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
@@ -92,7 +92,7 @@
     .reel-card {
       background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
       overflow: hidden; display: flex; flex-direction: column;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); position: relative;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
     .reel-container {
       width: 100%;
@@ -102,30 +102,6 @@
     .reel-video {
       width: 100%; height: 100%; object-fit: cover;
     }
-
-    /* Integrated Custom Player Options Overlay */
-    .custom-player-controls {
-      position: absolute; bottom: 0; left: 0; width: 100%;
-      background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-      padding: 12px 10px 8px; display: flex; flex-direction: column; gap: 6px;
-      opacity: 0; transition: opacity 0.3s ease-in-out; z-index: 10;
-    }
-    .reel-card:hover .custom-player-controls { opacity: 1; }
-
-    .video-progress-bar {
-      width: 100%; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; cursor: pointer; position: relative;
-    }
-    .video-progress-filled {
-      height: 100%; background: var(--primary); width: 0%; border-radius: 2px;
-    }
-    .controls-row {
-      display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 0.75rem;
-    }
-    .controls-left, .controls-right { display: flex; align-items: center; gap: 8px; }
-    .control-btn {
-      background: none; border: none; color: #fff; cursor: pointer; font-size: 0.9rem; padding: 2px;
-    }
-    .control-btn:hover { color: var(--primary); }
 
     /* Grid */
     .album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
@@ -208,9 +184,35 @@
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
 
-      <!-- 4-Column Individual Video Section fetched from GitHub -->
-      <div class="reel-grid-section" id="reelGridSection">
-        <p style="color: var(--text-muted);">Loading videos from repository...</p>
+      <!-- 4-Column Individual Video Section (Manual Links) -->
+      <div class="reel-grid-section">
+        <!-- Video Player 1 -->
+        <div class="reel-card">
+          <div class="reel-container">
+            <video class="reel-video" controls src="YOUR_VIDEO_LINK_1.mp4"></video>
+          </div>
+        </div>
+
+        <!-- Video Player 2 -->
+        <div class="reel-card">
+          <div class="reel-container">
+            <video class="reel-video" controls src="YOUR_VIDEO_LINK_2.mp4"></video>
+          </div>
+        </div>
+
+        <!-- Video Player 3 -->
+        <div class="reel-card">
+          <div class="reel-container">
+            <video class="reel-video" controls src="YOUR_VIDEO_LINK_3.mp4"></video>
+          </div>
+        </div>
+
+        <!-- Video Player 4 -->
+        <div class="reel-card">
+          <div class="reel-container">
+            <video class="reel-video" controls src="YOUR_VIDEO_LINK_4.mp4"></video>
+          </div>
+        </div>
       </div>
 
       <div class="album-grid" id="folder-grid"></div>
@@ -278,122 +280,6 @@
       slides[curSlide].classList.add('active');
     }, 4500);
 
-    // --------------------------------------------------------------------
-    // FETCH INDIVIDUAL VIDEOS FROM GITHUB REPO FOLDER /videos
-    // --------------------------------------------------------------------
-    async function loadGitHubVideos() {
-      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
-      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
-      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
-      const token = localStorage.getItem("gh_token");
-
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/videos?ref=${branch}`;
-      const headers = { "Accept": "application/vnd.github+json" };
-      if (token) headers["Authorization"] = `token ${token}`;
-
-      let videoFiles = [];
-      try {
-        const res = await fetch(url, { headers });
-        if (res.ok) {
-          const files = await res.json();
-          // Filter video formats and sort them alphabetically
-          videoFiles = files.filter(f => /\.(mp4|mov|webm)$/i.test(f.name)).sort((a, b) => a.name.localeCompare(b.name)).map(f => f.download_url);
-        }
-      } catch (err) {
-        console.error("Could not fetch videos from GitHub folder /videos:", err);
-      }
-
-      // Fallback sample URLs if repository folder is empty or not found
-      if (videoFiles.length === 0) {
-        videoFiles = [
-          "https://assets.mixkit.co/videos/preview/mixkit-bride-and-groom-walking-in-a-park-41586-large.mp4",
-          "https://assets.mixkit.co/videos/preview/mixkit-happy-couple-dancing-at-a-wedding-41589-large.mp4",
-          "https://assets.mixkit.co/videos/preview/mixkit-wedding-rings-close-up-41584-large.mp4",
-          "https://assets.mixkit.co/videos/preview/mixkit-bride-holding-her-bouquet-41588-large.mp4"
-        ];
-      }
-
-      const gridSection = document.getElementById("reelGridSection");
-      gridSection.innerHTML = "";
-
-      // Build exactly 4 cards, each with its unique video link
-      for (let i = 0; i < 4; i++) {
-        const videoUrl = videoFiles[i] || videoFiles[0]; // Fallback to first if less than 4 exist
-        const card = document.createElement("div");
-        card.className = "reel-card";
-        
-        card.innerHTML = `
-          <div class="reel-container">
-            <video class="reel-video" id="vid_${i}" src="${videoUrl}" muted loop playsinline></video>
-            <div class="custom-player-controls">
-              <div class="video-progress-bar" onclick="seekVideo(event, 'vid_${i}')">
-                <div class="video-progress-filled" id="progress_${i}"></div>
-              </div>
-              <div class="controls-row">
-                <div class="controls-left">
-                  <button class="control-btn" id="playbtn_${i}" onclick="togglePlay('${i}')">▶</button>
-                  <span id="time_${i}" style="font-size: 0.7rem;">0:00</span>
-                </div>
-                <div class="controls-right">
-                  <button class="control-btn" onclick="toggleMute('${i}')">🔊</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        gridSection.appendChild(card);
-        setupSingleVideoPlayer(i);
-      }
-    }
-
-    function setupSingleVideoPlayer(idx) {
-      const vid = document.getElementById(`vid_${idx}`);
-      
-      // Auto-play muted video smoothly
-      vid.play().catch(() => {});
-
-      vid.ontimeupdate = () => {
-        if (vid.duration) {
-          const percent = (vid.currentTime / vid.duration) * 100;
-          document.getElementById(`progress_${idx}`).style.width = percent + "%";
-          
-          let mins = Math.floor(vid.currentTime / 60);
-          let secs = Math.floor(vid.currentTime % 60);
-          document.getElementById(`time_${idx}`).textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-      };
-    }
-
-    function togglePlay(idx) {
-      const vid = document.getElementById(`vid_${idx}`);
-      const btn = document.getElementById(`playbtn_${idx}`);
-      if (vid) {
-        if (vid.paused) {
-          vid.play();
-          btn.textContent = "❚❚";
-        } else {
-          vid.pause();
-          btn.textContent = "▶";
-        }
-      }
-    }
-
-    function toggleMute(idx) {
-      const vid = document.getElementById(`vid_${idx}`);
-      if (vid) {
-        vid.muted = !vid.muted;
-      }
-    }
-
-    function seekVideo(event, vidId) {
-      const vid = document.getElementById(vidId);
-      if (vid && vid.duration) {
-        const rect = event.currentTarget.getBoundingClientRect();
-        const pos = (event.clientX - rect.left) / rect.width;
-        vid.currentTime = pos * vid.duration;
-      }
-    }
-
     const folders = [
       { id: "save-the-date", title: "Save the date", defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
       { id: "engagement", title: "Engagement", defaultCover: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" },
@@ -443,7 +329,6 @@
       document.getElementById("adminPanelModal").style.display = "none";
       await checkHealth();
       renderFolders();
-      loadGitHubVideos();
     }
 
     async function checkHealth() {
@@ -632,7 +517,7 @@
     async function deletePhotoFromGitHub(path, sha) {
       const token = localStorage.getItem("gh_token");
       const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
-      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_RAW_REPO = DEFAULT_REPO;
       const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
 
       if (!token) {
@@ -650,3 +535,31 @@
             "Accept": "application/vnd.github+json",
             "Authorization": `token ${token.trim()}`,
             "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `Delete ${path} via Admin Panel`,
+            sha: sha,
+            branch: branch
+          })
+        });
+
+        if (res.ok) {
+          alert("Photo deleted from repository.");
+          await renderPhotos();
+        } else {
+          const err = await res.json();
+          alert("Delete failed: " + err.message);
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      checkAdminAccess();
+      await checkHealth();
+      await renderFolders();
+    });
+  </script>
+</body>
+</html>
