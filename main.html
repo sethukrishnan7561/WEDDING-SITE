@@ -82,7 +82,7 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
-    /* 4-Column Reel-Style Grid Section (Instagram Reel proportions: taller 650px height) */
+    /* 4-Column Reel-Style Grid Section (Strict 9:16 vertical aspect ratio container) */
     .reel-grid-section {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem; width: 100%;
     }
@@ -91,11 +91,13 @@
 
     .reel-card {
       background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
-      overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
+      overflow: hidden; display: flex; flex-direction: column;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
     .reel-container {
-      width: 100%; height: 650px; background-color: #000; position: relative; overflow: hidden;
+      width: 100%;
+      aspect-ratio: 9 / 16; /* True 9:16 vertical reel ratio */
+      background-color: #000; position: relative; overflow: hidden;
     }
     .reel-slider-track {
       display: flex; width: 100%; height: 100%; transition: transform 1.2s ease-in-out;
@@ -103,16 +105,6 @@
     .reel-slide {
       min-width: 100%; height: 100%; object-fit: cover; flex-shrink: 0;
     }
-    .reel-card-content { padding: 1rem; text-align: center; display: flex; justify-content: space-between; align-items: center; }
-    .reel-card-content h3 { font-size: 0.95rem; color: var(--text); font-family: "Georgia", serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-    /* Custom Option / Action Icon Button Style */
-    .btn-option {
-      background: transparent; color: var(--primary); border: 1px solid var(--border);
-      padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600;
-      cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.4rem;
-    }
-    .btn-option:hover { background: var(--primary); color: #0f1115; border-color: var(--primary); }
 
     /* Grid */
     .album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
@@ -195,7 +187,7 @@
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
 
-      <!-- 4-Column Reel-Style Grid Section with Slow Sliding Transitions -->
+      <!-- 4-Column Reel-Style Grid Section (9:16 Aspect Ratio, Slow Sliding, No Titles, No Fullscreen Button) -->
       <div class="reel-grid-section">
         <!-- Card 1 -->
         <div class="reel-card">
@@ -206,10 +198,6 @@
               <video class="reel-slide" src="video3.mp4" autoplay muted loop playsinline></video>
               <video class="reel-slide" src="video4.mp4" autoplay muted loop playsinline></video>
             </div>
-          </div>
-          <div class="reel-card-content">
-            <h3>Reel Collection 1</h3>
-            <button class="btn-option" onclick="toggleReelOptions(1)">⚙️ Options</button>
           </div>
         </div>
 
@@ -223,10 +211,6 @@
               <video class="reel-slide" src="video1.mp4" autoplay muted loop playsinline></video>
             </div>
           </div>
-          <div class="reel-card-content">
-            <h3>Reel Collection 2</h3>
-            <button class="btn-option" onclick="toggleReelOptions(2)">⚙️ Options</button>
-          </div>
         </div>
 
         <!-- Card 3 -->
@@ -239,10 +223,6 @@
               <video class="reel-slide" src="video2.mp4" autoplay muted loop playsinline></video>
             </div>
           </div>
-          <div class="reel-card-content">
-            <h3>Reel Collection 3</h3>
-            <button class="btn-option" onclick="toggleReelOptions(3)">⚙️ Options</button>
-          </div>
         </div>
 
         <!-- Card 4 -->
@@ -254,10 +234,6 @@
               <video class="reel-slide" src="video2.mp4" autoplay muted loop playsinline></video>
               <video class="reel-slide" src="video3.mp4" autoplay muted loop playsinline></video>
             </div>
-          </div>
-          <div class="reel-card-content">
-            <h3>Reel Collection 4</h3>
-            <button class="btn-option" onclick="toggleReelOptions(4)">⚙️ Options</button>
           </div>
         </div>
       </div>
@@ -342,11 +318,6 @@
     setupReelSlider('track2');
     setupReelSlider('track3');
     setupReelSlider('track4');
-
-    // Placeholder function for custom options button actions
-    function toggleReelOptions(cardNum) {
-      alert("Options menu for Reel Collection " + cardNum);
-    }
 
     const folders = [
       { id: "save-the-date", title: "Save the date", defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
@@ -578,7 +549,7 @@
         alert("Upload error: " + err.message);
       } finally {
         btn.innerText = "Upload & Push";
-        btn.disabled = true;
+        btn.disabled = false;
       }
     }
 
