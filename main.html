@@ -65,7 +65,7 @@
     /* Banner Slideshow */
     .banner-section {
       position: relative; width: 100%; height: 560px; border-radius: 12px;
-      overflow: hidden; margin-bottom: 3rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      overflow: hidden; margin-bottom: 2rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
       border: 1px solid var(--border); display: flex; justify-content: center;
       align-items: flex-end; padding-bottom: 3rem;
     }
@@ -80,6 +80,17 @@
       font-family: 'Great Vibes', cursive; font-size: 2rem; padding: 0.6rem 2.5rem;
       border-radius: 35px; border: 1px solid #bfdbfe; cursor: pointer;
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+
+    /* Extra YouTube Player Section (Same size and dimension as banner) */
+    .youtube-section {
+      position: relative; width: 100%; height: 560px; border-radius: 12px;
+      overflow: hidden; margin-bottom: 3rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border); background: #000;
+    }
+    .youtube-player-iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      border: none;
     }
 
     /* Grid */
@@ -155,12 +166,19 @@
 
   <main class="container">
     <div id="home-view" class="view-section" style="display: block;">
+      <!-- Original Banner Slideshow -->
       <div class="banner-section">
         <div class="banner-slide active" style="background-image: url('family.jpg');"></div>
         <div class="banner-slide" style="background-image: url('cover.jpg');"></div>
         <div class="banner-slide" style="background-image: url('family2.jpg');"></div>
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
+
+      <!-- Extra YouTube Player Section (Same size and dimensions as the banner) -->
+      <div class="youtube-section">
+        <iframe class="youtube-player-iframe" src="https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE?autoplay=0&mute=0&controls=1" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+
       <div class="album-grid" id="folder-grid"></div>
     </div>
 
@@ -185,7 +203,6 @@
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="document.getElementById('addModal').style.display='none'">Cancel</button>
         <button class="btn" id="btnSubmitUpload" onclick="uploadPhotoToGitHub()">Upload & Push</button>
-         
       </div>
     </div>
   </div>
@@ -315,7 +332,6 @@
         const res = await fetch(url, { headers });
         if (!res.ok) return [];
         const files = await res.json();
-        // Return only image files
         return files.filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f.name));
       } catch (err) {
         console.error("Failed fetching GitHub folder:", err);
