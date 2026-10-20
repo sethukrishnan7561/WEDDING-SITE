@@ -82,15 +82,26 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
-    /* Extra Instagram Reel Section (Same size and dimension as banner) */
-    .instagram-section {
-      position: relative; width: 100%; height: 560px; border-radius: 12px;
-      overflow: hidden; margin-bottom: 3rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-      border: 1px solid var(--border); background: #161920; display: flex; justify-content: center; align-items: center;
+    /* 4-Column Video Grid Section (Outer container matches banner width layout) */
+    .video-grid-section {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem; width: 100%;
     }
-    .instagram-section iframe {
-      width: 100%; height: 100%; border: none; background: transparent;
+    @media (max-width: 1024px) { .video-grid-section { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .video-grid-section { grid-template-columns: 1fr; } }
+
+    .video-card {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
+    .video-container {
+      width: 100%; height: 240px; background-color: #000; position: relative;
+    }
+    .video-container video {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .video-card-content { padding: 1rem; text-align: center; }
+    .video-card-content h3 { font-size: 1rem; color: var(--text); font-family: "Georgia", serif; margin-bottom: 0.8rem; }
 
     /* Grid */
     .album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
@@ -165,7 +176,7 @@
 
   <main class="container">
     <div id="home-view" class="view-section" style="display: block;">
-      <!-- Original Banner Slideshow -->
+      <!-- Original Banner Slideshow[cite: 1] -->
       <div class="banner-section">
         <div class="banner-slide active" style="background-image: url('family.jpg');"></div>
         <div class="banner-slide" style="background-image: url('cover.jpg');"></div>
@@ -173,9 +184,47 @@
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
 
-      <!-- Extra Instagram Reel Player Section -->
-      <div class="instagram-section">
-        <iframe src="https://www.instagram.com/reel/YOUR_REEL_ID_HERE/embed" scrolling="no" allowtransparency="true"></iframe>
+      <!-- 4-Column Video Grid Section -->
+      <div class="video-grid-section">
+        <div class="video-card">
+          <div class="video-container">
+            <video id="vid1" src="video1.mp4" controls muted loop playsinline></video>
+          </div>
+          <div class="video-card-content">
+            <h3>Highlight Reel 1</h3>
+            <button class="btn" onclick="document.getElementById('vid1').requestFullscreen()">Fullscreen</button>
+          </div>
+        </div>
+
+        <div class="video-card">
+          <div class="video-container">
+            <video id="vid2" src="video2.mp4" controls muted loop playsinline></video>
+          </div>
+          <div class="video-card-content">
+            <h3>Highlight Reel 2</h3>
+            <button class="btn" onclick="document.getElementById('vid2').requestFullscreen()">Fullscreen</button>
+          </div>
+        </div>
+
+        <div class="video-card">
+          <div class="video-container">
+            <video id="vid3" src="video3.mp4" controls muted loop playsinline></video>
+          </div>
+          <div class="video-card-content">
+            <h3>Highlight Reel 3</h3>
+            <button class="btn" onclick="document.getElementById('vid3').requestFullscreen()">Fullscreen</button>
+          </div>
+        </div>
+
+        <div class="video-card">
+          <div class="video-container">
+            <video id="vid4" src="video4.mp4" controls muted loop playsinline></video>
+          </div>
+          <div class="video-card-content">
+            <h3>Highlight Reel 4</h3>
+            <button class="btn" onclick="document.getElementById('vid4').requestFullscreen()">Fullscreen</button>
+          </div>
+        </div>
       </div>
 
       <div class="album-grid" id="folder-grid"></div>
@@ -234,7 +283,7 @@
     const DEFAULT_BRANCH = "main";
     const SECRET_ADMIN_PASS = "admin2026";         // Secret passcode to show admin button
 
-    // Banner
+    // Banner Slideshow Script[cite: 1]
     const slides = document.querySelectorAll('.banner-slide');
     let curSlide = 0;
     setInterval(() => {
