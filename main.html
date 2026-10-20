@@ -82,7 +82,7 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
-    /* 4-Column Reel-Style Grid Section (Strict 9:16 vertical aspect ratio container) */
+    /* 4-Column Reel-Style Grid Section (Strict 9:12 aspect ratio container) */
     .reel-grid-section {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem; width: 100%;
     }
@@ -96,7 +96,7 @@
     }
     .reel-container {
       width: 100%;
-      aspect-ratio: 9 / 16; /* True 9:16 vertical reel ratio */
+      aspect-ratio: 9 / 12; /* Set to 9:12 aspect ratio */
       background-color: #000; position: relative; overflow: hidden;
     }
     .reel-slider-track {
@@ -187,7 +187,7 @@
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
 
-      <!-- 4-Column Reel-Style Grid Section (9:16 Aspect Ratio, Slow Sliding, No Titles, No Fullscreen Button) -->
+      <!-- 4-Column Reel-Style Grid Section (9:12 Aspect Ratio, Slow Sliding) -->
       <div class="reel-grid-section">
         <!-- Card 1 -->
         <div class="reel-card">
