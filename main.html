@@ -62,7 +62,7 @@
 
     .container { max-width: 1400px; margin: 2.5rem auto; padding: 0 1.5rem; flex-grow: 1; width: 100%; }
 
-    /* Banner Slideshow */
+    /* Banner Slideshow[cite: 1] */
     .banner-section {
       position: relative; width: 100%; height: 560px; border-radius: 12px;
       overflow: hidden; margin-bottom: 2rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
@@ -99,11 +99,8 @@
       aspect-ratio: 9 / 12;
       background-color: #000; position: relative; overflow: hidden;
     }
-    .reel-slider-track {
-      display: flex; width: 100%; height: 100%; transition: transform 1.2s ease-in-out;
-    }
-    .reel-slide {
-      min-width: 100%; height: 100%; object-fit: cover; flex-shrink: 0;
+    .reel-video {
+      width: 100%; height: 100%; object-fit: cover;
     }
 
     /* Integrated Custom Player Options Overlay */
@@ -211,8 +208,10 @@
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
 
-      <!-- 4-Column Reel-Style Grid Section with Manual Video Linking -->
-      <div class="reel-grid-section" id="reelGridSection"></div>
+      <!-- 4-Column Individual Video Section fetched from GitHub -->
+      <div class="reel-grid-section" id="reelGridSection">
+        <p style="color: var(--text-muted);">Loading videos from repository...</p>
+      </div>
 
       <div class="album-grid" id="folder-grid"></div>
     </div>
@@ -280,30 +279,54 @@
     }, 4500);
 
     // --------------------------------------------------------------------
-    // MANUAL VIDEO LINKING ARRAY (Add your direct video paths or URLs here)
+    // FETCH INDIVIDUAL VIDEOS FROM GITHUB REPO FOLDER /videos
     // --------------------------------------------------------------------
-    const manualVideos = [
-      ["ENGAGEMENT 1.mp4", "video2.mp4", "video3.mp4", "video4.mp4"], // Column 1 sliding videos
-      ["ENGAGEMENT_1.mp4, "video3.mp4", "video4.mp4", "video1.mp4"], // Column 2 sliding videos
-      ["Betrothal.mp4, "video4.mp4", "video1.mp4", "video2.mp4"], // Column 3 sliding videos
-      ["video4.mp4", "video1.mp4", "video2.mp4", "video3.mp4"]  // Column 4 sliding videos
-    ];
+    async function loadGitHubVideos() {
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+      const token = localStorage.getItem("gh_token");
 
-    function loadManualReels() {
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/videos?ref=${branch}`;
+      const headers = { "Accept": "application/vnd.github+json" };
+      if (token) headers["Authorization"] = `token ${token}`;
+
+      let videoFiles = [];
+      try {
+        const res = await fetch(url, { headers });
+        if (res.ok) {
+          const files = await res.json();
+          // Filter video formats and sort them alphabetically
+          videoFiles = files.filter(f => /\.(mp4|mov|webm)$/i.test(f.name)).sort((a, b) => a.name.localeCompare(b.name)).map(f => f.download_url);
+        }
+      } catch (err) {
+        console.error("Could not fetch videos from GitHub folder /videos:", err);
+      }
+
+      // Fallback sample URLs if repository folder is empty or not found
+      if (videoFiles.length === 0) {
+        videoFiles = [
+          "https://assets.mixkit.co/videos/preview/mixkit-bride-and-groom-walking-in-a-park-41586-large.mp4",
+          "https://assets.mixkit.co/videos/preview/mixkit-happy-couple-dancing-at-a-wedding-41589-large.mp4",
+          "https://assets.mixkit.co/videos/preview/mixkit-wedding-rings-close-up-41584-large.mp4",
+          "https://assets.mixkit.co/videos/preview/mixkit-bride-holding-her-bouquet-41588-large.mp4"
+        ];
+      }
+
       const gridSection = document.getElementById("reelGridSection");
       gridSection.innerHTML = "";
 
-      manualVideos.forEach((videoList, i) => {
+      // Build exactly 4 cards, each with its unique video link
+      for (let i = 0; i < 4; i++) {
+        const videoUrl = videoFiles[i] || videoFiles[0]; // Fallback to first if less than 4 exist
         const card = document.createElement("div");
         card.className = "reel-card";
         
         card.innerHTML = `
-          <div class="reel-container" id="container_${i}">
-            <div class="reel-slider-track" id="track_${i}">
-              ${videoList.map(src => `<video class="reel-slide" src="${src}" muted playsinline></video>`).join('')}
-            </div>
+          <div class="reel-container">
+            <video class="reel-video" id="vid_${i}" src="${videoUrl}" muted loop playsinline></video>
             <div class="custom-player-controls">
-              <div class="video-progress-bar" onclick="seekVideo(event, 'active_vid_${i}')">
+              <div class="video-progress-bar" onclick="seekVideo(event, 'vid_${i}')">
                 <div class="video-progress-filled" id="progress_${i}"></div>
               </div>
               <div class="controls-row">
@@ -319,57 +342,31 @@
           </div>
         `;
         gridSection.appendChild(card);
-
-        setupReelWithControls(i, videoList.length);
-      });
-    }
-
-    function setupReelWithControls(cardIdx, totalSlides) {
-      const track = document.getElementById(`track_${cardIdx}`);
-      let currentIdx = 0;
-
-      function updateActiveVideo() {
-        Array.from(track.children).forEach((vid) => {
-          vid.pause();
-          vid.id = "";
-          vid.currentTime = 0;
-        });
-
-        const activeVid = track.children[currentIdx];
-        activeVid.id = `active_vid_${cardIdx}`;
-        activeVid.play().catch(() => {});
-        document.getElementById(`playbtn_${cardIdx}`).textContent = "❚❚";
-
-        activeVid.ontimeupdate = () => {
-          if (activeVid.duration) {
-            const percent = (activeVid.currentTime / activeVid.duration) * 100;
-            document.getElementById(`progress_${cardIdx}`).style.width = percent + "%";
-            
-            let mins = Math.floor(activeVid.currentTime / 60);
-            let secs = Math.floor(activeVid.currentTime % 60);
-            document.getElementById(`time_${cardIdx}`).textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-          }
-        };
-
-        activeVid.onended = () => {
-          currentIdx = (currentIdx + 1) % totalSlides;
-          track.style.transform = `translateX(-${currentIdx * 100}%)`;
-          updateActiveVideo();
-        };
+        setupSingleVideoPlayer(i);
       }
-
-      updateActiveVideo();
-
-      setInterval(() => {
-        currentIdx = (currentIdx + 1) % totalSlides;
-        track.style.transform = `translateX(-${currentIdx * 100}%)`;
-        updateActiveVideo();
-      }, 7000);
     }
 
-    function togglePlay(cardIdx) {
-      const vid = document.getElementById(`active_vid_${cardIdx}`);
-      const btn = document.getElementById(`playbtn_${cardIdx}`);
+    function setupSingleVideoPlayer(idx) {
+      const vid = document.getElementById(`vid_${idx}`);
+      
+      // Auto-play muted video smoothly
+      vid.play().catch(() => {});
+
+      vid.ontimeupdate = () => {
+        if (vid.duration) {
+          const percent = (vid.currentTime / vid.duration) * 100;
+          document.getElementById(`progress_${idx}`).style.width = percent + "%";
+          
+          let mins = Math.floor(vid.currentTime / 60);
+          let secs = Math.floor(vid.currentTime % 60);
+          document.getElementById(`time_${idx}`).textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+      };
+    }
+
+    function togglePlay(idx) {
+      const vid = document.getElementById(`vid_${idx}`);
+      const btn = document.getElementById(`playbtn_${idx}`);
       if (vid) {
         if (vid.paused) {
           vid.play();
@@ -381,8 +378,8 @@
       }
     }
 
-    function toggleMute(cardIdx) {
-      const vid = document.getElementById(`active_vid_${cardIdx}`);
+    function toggleMute(idx) {
+      const vid = document.getElementById(`vid_${idx}`);
       if (vid) {
         vid.muted = !vid.muted;
       }
@@ -446,6 +443,7 @@
       document.getElementById("adminPanelModal").style.display = "none";
       await checkHealth();
       renderFolders();
+      loadGitHubVideos();
     }
 
     async function checkHealth() {
@@ -652,32 +650,3 @@
             "Accept": "application/vnd.github+json",
             "Authorization": `token ${token.trim()}`,
             "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: `Delete ${path} via Admin Panel`,
-            sha: sha,
-            branch: branch
-          })
-        });
-
-        if (res.ok) {
-          alert("Photo deleted from repository.");
-          await renderPhotos();
-        } else {
-          const err = await res.json();
-          alert("Delete failed: " + err.message);
-        }
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
-    }
-
-    window.addEventListener("DOMContentLoaded", async () => {
-      checkAdminAccess();
-      await checkHealth();
-      await renderFolders();
-      loadManualReels();
-    });
-  </script>
-</body>
-</html>
