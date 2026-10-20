@@ -82,14 +82,17 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
-    /* Single Large Video Player Section (Same size and dimensions as the banner) */
+    /* Single Large Video Player Section (Exact same size as banner) */
     .single-video-section {
       position: relative; width: 100%; height: 560px; border-radius: 12px;
       overflow: hidden; margin-bottom: 3rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
       border: 1px solid var(--border); background: #000;
+      display: flex; justify-content: center; align-items: center;
     }
     .single-video-player {
-      width: 100%; height: 100%; object-fit: cover;
+      width: 100%; height: 100%; 
+      object-fit: contain; /* Ensures the entire video fits nicely inside the player without cropping */
+      background-color: #000;
     }
 
     /* Grid */
@@ -173,9 +176,9 @@
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
 
-      <!-- Single Large Video Player Section (Exact same size as banner) -->
+      <!-- Single Large Video Player Section (Video fits inside perfectly using object-fit: contain) -->
       <div class="single-video-section">
-        <video class="single-video-player" controls src="ENGAGEMENT 1.mp4"></video>.
+        <video class="single-video-player" controls src="https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE"></video>
       </div>
 
       <div class="album-grid" id="folder-grid"></div>
