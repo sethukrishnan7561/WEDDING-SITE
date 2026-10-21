@@ -42,7 +42,7 @@
 
     /* Admin Button */
     .btn-admin {
-      display: inline-flex; /* Forced to show for ease of use */
+      display: inline-flex;
       background: var(--primary); color: #0f1115; border: none;
       padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem;
       font-weight: 600; cursor: pointer; align-items: center; gap: 0.6rem;
@@ -217,7 +217,6 @@
     const DEFAULT_OWNER = "sethukrishnan7561";[cite: 1]
     const DEFAULT_REPO = "WEDDING-SITE";[cite: 1]
     const DEFAULT_BRANCH = "main";
-    const SECRET_ADMIN_PASS = "admin2026";
 
     // Banner Slideshow Script
     const slides = document.querySelectorAll('.banner-slide');
@@ -236,11 +235,10 @@
     ];
 
     let currentFolderId = "";
-    let isAdmin = true; // Forced true so admin button and actions are visible
+    let isAdmin = true;
 
     function openAdminPanel() {
       document.getElementById("adminPanelModal").style.display = "flex";
-      // Fixed storage keys lookup
       document.getElementById("ghOwner").value = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
       document.getElementById("ghRepo").value = localStorage.getItem("gh_repo") || DEFAULT_REPO;
       document.getElementById("ghBranch").value = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
