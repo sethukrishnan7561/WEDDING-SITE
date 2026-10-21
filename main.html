@@ -40,9 +40,9 @@
     .brand-center { font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: var(--primary); text-align: center; }
     .header-right { justify-self: end; display: flex; align-items: center; gap: 1rem; }
 
-    /* Admin Button: Hidden by default until authorized */
+    /* Admin Button */
     .btn-admin {
-      display: none;
+      display: inline-flex; /* Forced to show for ease of use */
       background: var(--primary); color: #0f1115; border: none;
       padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem;
       font-weight: 600; cursor: pointer; align-items: center; gap: 0.6rem;
@@ -115,7 +115,7 @@
     .action-bar { display: flex; gap: 0.75rem; }
     .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); width: auto; padding: 0.5rem 1rem; }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
-    .btn-upload-admin { display: none; width: auto; padding: 0.5rem 1rem; }
+    .btn-upload-admin { display: inline-block; width: auto; padding: 0.5rem 1rem; }
 
     .photo-grid { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1.5rem; }
     .photo-card {
@@ -125,7 +125,7 @@
     .photo-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
     .photo-footer { padding: 0.6rem; display: flex; justify-content: space-between; align-items: center; }
     .photo-title { font-size: 0.75rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
-    .btn-delete-admin { display: none; background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; }
+    .btn-delete-admin { display: inline-block; background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; }
 
     /* Modals */
     .modal {
@@ -236,29 +236,15 @@
     ];
 
     let currentFolderId = "";
-    let isAdmin = false;
-
-    // Admin Access Gate via URL parameter ?key=admin2026
-    function checkAdminAccess() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("key") === SECRET_ADMIN_PASS) {
-        localStorage.setItem("admin_authorized", "true");
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-
-      if (localStorage.getItem("admin_authorized") === "true") {
-        isAdmin = true;
-        document.getElementById("btnAdmin").style.display = "inline-flex";
-        document.getElementById("btnUploadAdmin").style.display = "inline-block";
-      }
-    }
+    let isAdmin = true; // Forced true so admin button and actions are visible
 
     function openAdminPanel() {
       document.getElementById("adminPanelModal").style.display = "flex";
-      document.getElementById("ghOwner").value = localStorage.getItem("sethukrishnan7561") || DEFAULT_OWNER;
-      document.getElementById("ghRepo").value = localStorage.getItem("WEDDING-SITE") || DEFAULT_REPO;
-      document.getElementById("ghBranch").value = localStorage.getItem("main") || DEFAULT_BRANCH;
-      document.getElementById("ghToken").value = localStorage.getItem("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") || "";
+      // Fixed storage keys lookup
+      document.getElementById("ghOwner").value = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      document.getElementById("ghRepo").value = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      document.getElementById("ghBranch").value = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+      document.getElementById("ghToken").value = localStorage.getItem("gh_token") || "";
     }
 
     async function saveAdminSettings() {
@@ -374,7 +360,7 @@
           <img src="${file.download_url}" alt="${file.name}" onclick="window.open('${file.download_url}', '_blank')">
           <div class="photo-footer">
             <span class="photo-title">${file.name}</span>
-            <button class="btn-delete-admin" style="${isAdmin ? 'display:inline-block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
+            <button class="btn-delete-admin" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
           </div>
         `;
         grid.appendChild(card);
@@ -495,7 +481,6 @@
     }
 
     window.addEventListener("DOMContentLoaded", async () => {
-      checkAdminAccess();
       await checkHealth();
       await renderFolders();
     });
