@@ -151,10 +151,60 @@
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
 
-    /* Lightbox Viewer */
+    /* Lightbox Viewer Styles */
     #lightboxModal {
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.95);
       user-select: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .lightbox-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    #lightboxImg {
+      max-width: 85vw;
+      max-height: 80vh;
+      object-fit: contain;
+      transition: transform 0.1s ease-out;
+      cursor: grab;
+      touch-action: none;
+    }
+    #lightboxImg:active {
+      cursor: grabbing;
+    }
+    .lightbox-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: none;
+      font-size: 2rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 50%;
+      z-index: 1020;
+      transition: background 0.2s;
+    }
+    .lightbox-arrow:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    #lightboxPrev { left: 20px; }
+    #lightboxNext { right: 20px; }
+    
+    .lightbox-bottom-bar {
+      position: absolute;
+      bottom: 20px;
+      display: flex;
+      gap: 1rem;
+      z-index: 1020;
     }
   </style>
 </head>
@@ -229,17 +279,19 @@
     </div>
   </div>
 
-  <!-- Lightbox Image Viewer Modal with Zoom & Download Controls -->
-  <div id="lightboxModal" class="modal" style="flex-direction: column;">
-    <span onclick="closeLightbox()" style="position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: white; cursor: pointer; z-index: 1010;">&times;</span>
-    <div style="position: relative; max-width: 90%; max-height: 85vh; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-      <img id="lightboxImg" src="" alt="Zoomable Image" style="max-width: 100%; max-height: 85vh; object-fit: contain; transition: transform 0.2s ease; transform: scale(1);">
+  <!-- Lightbox Image Viewer Modal with Scroll/Pinch Zoom, Arrows & Swipe -->
+  <div id="lightboxModal" class="modal">
+    <span onclick="closeLightbox()" style="position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: white; cursor: pointer; z-index: 1030;">&times;</span>
+    
+    <button class="lightbox-arrow" id="lightboxPrev" onclick="prevImage()">&#10094;</button>
+    <button class="lightbox-arrow" id="lightboxNext" onclick="nextImage()">&#10095;</button>
+
+    <div class="lightbox-container" id="lightboxContainer">
+      <img id="lightboxImg" src="" alt="Zoomable Image">
     </div>
-    <div style="margin-top: 1rem; display: flex; gap: 0.75rem; z-index: 1010;">
-      <button class="btn btn-secondary" onclick="zoomIn()" title="Zoom In" style="padding: 0.5rem 1rem; font-size: 1.2rem; font-weight: bold;">+</button>
-      <button class="btn btn-secondary" onclick="zoomOut()" title="Zoom Out" style="padding: 0.5rem 1rem; font-size: 1.2rem; font-weight: bold;">-</button>
-      <button class="btn btn-secondary" onclick="resetZoom()" title="Reset Zoom" style="padding: 0.5rem 1rem; font-size: 1.2rem;">⟳</button>
-      <a id="lightboxDownloadBtn" href="" download class="btn btn-secondary" title="Download Image" style="padding: 0.5rem 1rem; font-size: 1.2rem; text-decoration: none; display: inline-flex; align-items: center;">📥</a>
+
+    <div class="lightbox-bottom-bar">
+      <a id="lightboxDownloadBtn" href="" download class="btn btn-secondary" title="Download Image" style="padding: 0.5rem 1rem; font-size: 1.1rem; text-decoration: none; display: inline-flex; align-items: center;">📥 Download</a>
     </div>
   </div>
 
@@ -269,7 +321,17 @@
 
     let currentFolderId = "";
     let isAdmin = false;
-    let currentZoom = 1;
+    let currentFiles = [];
+    let currentIndex = 0;
+
+    // Zoom & Pan state variables
+    let currentScale = 1;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let initialPinchDistance = null;
 
     function checkAdminAccess() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -350,6 +412,8 @@
       if (btnSubmitUpload) {
         btnSubmitUpload.addEventListener("click", uploadPhotoToGitHub);
       }
+
+      setupLightboxGestures();
 
       await checkHealth();
       await renderFolders();
@@ -441,19 +505,19 @@
       if (!grid) return;
       grid.innerHTML = "<p style='color: var(--text-muted);'>Loading memories...</p>";
 
-      const files = await fetchGitHubFolder(currentFolderId);
+      currentFiles = await fetchGitHubFolder(currentFolderId);
       grid.innerHTML = "";
 
-      if (files.length === 0) {
+      if (currentFiles.length === 0) {
         grid.innerHTML = "<p style='color: var(--text-muted); padding: 1.5rem 0;'>No photos found in this collection.</p>";
         return;
       }
 
-      files.forEach(file => {
+      currentFiles.forEach((file, index) => {
         const card = document.createElement("div");
         card.className = "photo-card";
         card.innerHTML = `
-          <img src="${file.download_url}" alt="${file.name}" onclick="openLightbox('${file.download_url}', '${file.name}')">
+          <img src="${file.download_url}" alt="${file.name}" onclick="openLightbox(${index})">
           <div class="photo-footer">
             <span class="photo-title">${file.name}</span>
             <button class="btn-delete-admin" style="${isAdmin ? 'display:inline-block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
@@ -463,42 +527,135 @@
       });
     }
 
-    // Lightbox & Zoom Functions
-    window.openLightbox = function(url, filename) {
+    // Lightbox & Navigation Logic
+    window.openLightbox = function(index) {
+      currentIndex = index;
       const modal = document.getElementById("lightboxModal");
-      const img = document.getElementById("lightboxImg");
-      const downloadBtn = document.getElementById("lightboxDownloadBtn");
-      
-      img.src = url;
-      downloadBtn.href = url;
-      downloadBtn.setAttribute("download", filename || "memory.jpg");
-      
-      currentZoom = 1;
-      img.style.transform = `scale(${currentZoom})`;
       modal.style.display = "flex";
+      loadCurrentImage();
     }
 
     window.closeLightbox = function() {
       document.getElementById("lightboxModal").style.display = "none";
     }
 
-    window.zoomIn = function() {
-      if (currentZoom < 3) {
-        currentZoom += 0.3;
-        document.getElementById("lightboxImg").style.transform = `scale(${currentZoom})`;
-      }
+    function loadCurrentImage() {
+      const file = currentFiles[currentIndex];
+      const img = document.getElementById("lightboxImg");
+      const downloadBtn = document.getElementById("lightboxDownloadBtn");
+
+      currentScale = 1;
+      panX = 0;
+      panY = 0;
+      updateImageTransform();
+
+      img.src = file.download_url;
+      downloadBtn.href = file.download_url;
+      downloadBtn.setAttribute("download", file.name);
     }
 
-    window.zoomOut = function() {
-      if (currentZoom > 0.5) {
-        currentZoom -= 0.3;
-        document.getElementById("lightboxImg").style.transform = `scale(${currentZoom})`;
-      }
+    window.nextImage = function() {
+      if (currentFiles.length === 0) return;
+      currentIndex = (currentIndex + 1) % currentFiles.length;
+      loadCurrentImage();
     }
 
-    window.resetZoom = function() {
-      currentZoom = 1;
-      document.getElementById("lightboxImg").style.transform = `scale(${currentZoom})`;
+    window.prevImage = function() {
+      if (currentFiles.length === 0) return;
+      currentIndex = (currentIndex - 1 + currentFiles.length) % currentFiles.length;
+      loadCurrentImage();
+    }
+
+    function updateImageTransform() {
+      const img = document.getElementById("lightboxImg");
+      img.style.transform = `translate(${panX}px, ${panY}px) scale(${currentScale})`;
+    }
+
+    // Gestures Setup (Scroll zoom, pinch zoom, drag pan, and swipe navigation)
+    function setupLightboxGestures() {
+      const img = document.getElementById("lightboxImg");
+      const container = document.getElementById("lightboxContainer");
+
+      // Mouse Wheel Zoom
+      container.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const zoomIntensity = 0.15;
+        if (e.deltaY < 0) {
+          currentScale = Math.min(currentScale + zoomIntensity, 4);
+        } else {
+          currentScale = Math.max(currentScale - zoomIntensity, 1);
+          if (currentScale === 1) { panX = 0; panY = 0; }
+        }
+        updateImageTransform();
+      }, { passive: false });
+
+      // Mouse Drag / Touch Pan & Swipe Detection
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      container.addEventListener("pointerdown", (e) => {
+        if (e.target.tagName !== "IMG") return;
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+        img.setPointerCapture(e.pointerId);
+        touchStartX = e.clientX;
+      });
+
+      container.addEventListener("pointermove", (e) => {
+        if (!isDragging) return;
+        if (currentScale > 1) {
+          panX = e.clientX - startX;
+          panY = e.clientY - startY;
+          updateImageTransform();
+        }
+      });
+
+      container.addEventListener("pointerup", (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        touchEndX = e.clientX;
+        
+        // If not zoomed, check for horizontal swipe to change image
+        if (currentScale === 1) {
+          const swipeThreshold = 50;
+          if (touchStartX - touchEndX > swipeThreshold) {
+            nextImage();
+          } else if (touchEndX - touchStartX > swipeThreshold) {
+            prevImage();
+          }
+        }
+      });
+
+      // Mobile Pinch-to-Zoom support
+      container.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 2) {
+          initialPinchDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+        }
+      }, { passive: true });
+
+      container.addEventListener("touchmove", (e) => {
+        if (e.touches.length === 2 && initialPinchDistance) {
+          const currentDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          const factor = currentDistance / initialPinchDistance;
+          currentScale = Math.min(Math.max(currentScale * factor, 1), 4);
+          initialPinchDistance = currentDistance;
+          if (currentScale === 1) { panX = 0; panY = 0; }
+          updateImageTransform();
+        }
+      }, { passive: true });
+
+      container.addEventListener("touchend", (e) => {
+        if (e.touches.length < 2) {
+          initialPinchDistance = null;
+        }
+      });
     }
 
     function fileToBase64(file) {
