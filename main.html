@@ -117,7 +117,7 @@
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
     .btn-upload-admin { display: none; width: auto; padding: 0.5rem 1rem; }
 
-    /* Updated to Vertical Grid Format */
+    /* Vertical Grid Format */
     .photo-grid { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
@@ -150,6 +150,12 @@
       background: #0f1115; border: 1px solid var(--border); color: white; border-radius: 6px;
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+    /* Lightbox Viewer */
+    #lightboxModal {
+      background: rgba(0, 0, 0, 0.9);
+      user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -223,6 +229,19 @@
     </div>
   </div>
 
+  <!-- Lightbox Image Viewer Modal with Zoom controls -->
+  <div id="lightboxModal" class="modal" style="flex-direction: column;">
+    <span onclick="closeLightbox()" style="position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: white; cursor: pointer; z-index: 1010;">&times;</span>
+    <div style="position: relative; max-width: 90%; max-height: 85vh; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+      <img id="lightboxImg" src="" alt="Zoomable Image" style="max-width: 100%; max-height: 85vh; object-fit: contain; transition: transform 0.2s ease; transform: scale(1);">
+    </div>
+    <div style="margin-top: 1rem; display: flex; gap: 1rem; z-index: 1010;">
+      <button class="btn btn-secondary" onclick="zoomIn()">➕ Zoom In</button>
+      <button class="btn btn-secondary" onclick="zoomOut()">➖ Zoom Out</button>
+      <button class="btn btn-secondary" onclick="resetZoom()">🔄 Reset</button>
+    </div>
+  </div>
+
   <script>
     const DEFAULT_OWNER = "sethukrishnan7561";
     const DEFAULT_REPO = "WEDDING-SITE";
@@ -249,6 +268,7 @@
 
     let currentFolderId = "";
     let isAdmin = false;
+    let currentZoom = 1;
 
     function checkAdminAccess() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -432,7 +452,7 @@
         const card = document.createElement("div");
         card.className = "photo-card";
         card.innerHTML = `
-          <img src="${file.download_url}" alt="${file.name}" onclick="window.open('${file.download_url}', '_blank')">
+          <img src="${file.download_url}" alt="${file.name}" onclick="openLightbox('${file.download_url}')">
           <div class="photo-footer">
             <span class="photo-title">${file.name}</span>
             <button class="btn-delete-admin" style="${isAdmin ? 'display:inline-block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
@@ -440,6 +460,39 @@
         `;
         grid.appendChild(card);
       });
+    }
+
+    // Lightbox & Zoom Functions
+    window.openLightbox = function(url) {
+      const modal = document.getElementById("lightboxModal");
+      const img = document.getElementById("lightboxImg");
+      img.src = url;
+      currentZoom = 1;
+      img.style.transform = `scale(${currentZoom})`;
+      modal.style.display = "flex";
+    }
+
+    window.closeLightbox = function() {
+      document.getElementById("lightboxModal").style.display = "none";
+    }
+
+    window.zoomIn = function() {
+      if (currentZoom < 3) {
+        currentZoom += 0.3;
+        document.getElementById("lightboxImg").style.transform = `scale(${currentZoom})`;
+      }
+    }
+
+    window.zoomOut = function() {
+      if (currentZoom > 0.5) {
+        currentZoom -= 0.3;
+        document.getElementById("lightboxImg").style.transform = `scale(${currentZoom})`;
+      }
+    }
+
+    window.resetZoom = function() {
+      currentZoom = 1;
+      document.getElementById("lightboxImg").style.transform = `scale(${currentZoom})`;
     }
 
     function fileToBase64(file) {
