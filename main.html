@@ -229,7 +229,7 @@
     </div>
   </div>
 
-  <!-- Lightbox Image Viewer Modal with Icon Controls -->
+  <!-- Lightbox Image Viewer Modal with Zoom & Download Controls -->
   <div id="lightboxModal" class="modal" style="flex-direction: column;">
     <span onclick="closeLightbox()" style="position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: white; cursor: pointer; z-index: 1010;">&times;</span>
     <div style="position: relative; max-width: 90%; max-height: 85vh; display: flex; justify-content: center; align-items: center; overflow: hidden;">
@@ -239,6 +239,7 @@
       <button class="btn btn-secondary" onclick="zoomIn()" title="Zoom In" style="padding: 0.5rem 1rem; font-size: 1.2rem; font-weight: bold;">+</button>
       <button class="btn btn-secondary" onclick="zoomOut()" title="Zoom Out" style="padding: 0.5rem 1rem; font-size: 1.2rem; font-weight: bold;">-</button>
       <button class="btn btn-secondary" onclick="resetZoom()" title="Reset Zoom" style="padding: 0.5rem 1rem; font-size: 1.2rem;">⟳</button>
+      <a id="lightboxDownloadBtn" href="" download class="btn btn-secondary" title="Download Image" style="padding: 0.5rem 1rem; font-size: 1.2rem; text-decoration: none; display: inline-flex; align-items: center;">📥</a>
     </div>
   </div>
 
@@ -452,7 +453,7 @@
         const card = document.createElement("div");
         card.className = "photo-card";
         card.innerHTML = `
-          <img src="${file.download_url}" alt="${file.name}" onclick="openLightbox('${file.download_url}')">
+          <img src="${file.download_url}" alt="${file.name}" onclick="openLightbox('${file.download_url}', '${file.name}')">
           <div class="photo-footer">
             <span class="photo-title">${file.name}</span>
             <button class="btn-delete-admin" style="${isAdmin ? 'display:inline-block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
@@ -463,10 +464,15 @@
     }
 
     // Lightbox & Zoom Functions
-    window.openLightbox = function(url) {
+    window.openLightbox = function(url, filename) {
       const modal = document.getElementById("lightboxModal");
       const img = document.getElementById("lightboxImg");
+      const downloadBtn = document.getElementById("lightboxDownloadBtn");
+      
       img.src = url;
+      downloadBtn.href = url;
+      downloadBtn.setAttribute("download", filename || "memory.jpg");
+      
       currentZoom = 1;
       img.style.transform = `scale(${currentZoom})`;
       modal.style.display = "flex";
