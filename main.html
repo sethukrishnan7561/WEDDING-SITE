@@ -129,7 +129,7 @@
 
     /* Modals */
     .modal {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
       backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000;
     }
     .modal-content {
@@ -141,6 +141,24 @@
       background: #0f1115; border: 1px solid var(--border); color: white; border-radius: 6px;
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+    /* Lightbox Viewer Styles */
+    .lightbox-container {
+      position: relative; max-width: 90vw; max-height: 90vh; text-align: center;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .lightbox-img {
+      max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px;
+      transition: transform 0.3s ease; cursor: zoom-in;
+    }
+    .lightbox-img.zoomed {
+      transform: scale(1.8);
+      cursor: zoom-out;
+    }
+    .lightbox-close {
+      position: absolute; top: -45px; right: 0; background: none; border: none;
+      color: white; font-size: 2rem; cursor: pointer; font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -183,6 +201,15 @@
     </div>
   </main>
 
+  <!-- Image Lightbox Modal -->
+  <div id="lightboxModal" class="modal">
+    <div class="lightbox-container">
+      <button class="lightbox-close" id="closeLightbox">&times;</button>
+      <img id="lightboxImg" class="lightbox-img" src="" alt="Enlarged View">
+      <p id="lightboxCaption" style="color: var(--text-muted); margin-top: 1rem; font-size: 0.9rem;"></p>
+    </div>
+  </div>
+
   <!-- Upload Modal -->
   <div id="addModal" class="modal">
     <div class="modal-content">
@@ -215,8 +242,8 @@
   </div>
 
   <script>
-    const DEFAULT_OWNER = "sethukrishnan7561";
-    const DEFAULT_REPO = "WEDDING-SITE";
+    const DEFAULT_OWNER = "sethukrishnan7561";[cite: 1]
+    const DEFAULT_REPO = "WEDDING-SITE";[cite: 1]
     const DEFAULT_BRANCH = "main";
     const SECRET_ADMIN_PASS = "admin2026";
 
@@ -325,6 +352,33 @@
         btnSubmitUpload.addEventListener("click", uploadPhotoToGitHub);
       }
 
+      // Bind Lightbox Zoom & Close behaviors
+      const lightboxModal = document.getElementById("lightboxModal");
+      const closeLightbox = document.getElementById("closeLightbox");
+      const lightboxImg = document.getElementById("lightboxImg");
+
+      if (closeLightbox) {
+        closeLightbox.addEventListener("click", () => {
+          lightboxModal.style.display = "none";
+          lightboxImg.classList.remove("zoomed");
+        });
+      }
+
+      if (lightboxImg) {
+        lightboxImg.addEventListener("click", () => {
+          lightboxImg.classList.toggle("zoomed");
+        });
+      }
+
+      if (lightboxModal) {
+        lightboxModal.addEventListener("click", (e) => {
+          if (e.target === lightboxModal) {
+            lightboxModal.style.display = "none";
+            lightboxImg.classList.remove("zoomed");
+          }
+        });
+      }
+
       await checkHealth();
       await renderFolders();
     });
@@ -426,8 +480,9 @@
       files.forEach(file => {
         const card = document.createElement("div");
         card.className = "photo-card";
+        // Updated to open Lightbox Viewer instead of download/new tab
         card.innerHTML = `
-          <img src="${file.download_url}" alt="${file.name}" onclick="window.open('${file.download_url}', '_blank')">
+          <img src="${file.download_url}" alt="${file.name}" onclick="openLightbox('${file.download_url}', '${file.name}')">
           <div class="photo-footer">
             <span class="photo-title">${file.name}</span>
             <button class="btn-delete-admin" style="${isAdmin ? 'display:inline-block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
@@ -435,6 +490,18 @@
         `;
         grid.appendChild(card);
       });
+    }
+
+    // Function to trigger lightbox modal
+    window.openLightbox = function(url, title) {
+      const lightboxModal = document.getElementById("lightboxModal");
+      const lightboxImg = document.getElementById("lightboxImg");
+      const lightboxCaption = document.getElementById("lightboxCaption");
+
+      lightboxImg.src = url;
+      lightboxImg.classList.remove("zoomed");
+      lightboxCaption.textContent = title;
+      lightboxModal.style.display = "flex";
     }
 
     function fileToBase64(file) {
