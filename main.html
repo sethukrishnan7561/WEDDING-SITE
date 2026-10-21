@@ -14,6 +14,8 @@
       --text: #f3f4f6;
       --text-muted: #9ca3af;
       --border: #2a2f3d;
+      --danger: #ef4444;
+      --success: #10b981;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -36,7 +38,28 @@
     .header-left { justify-self: start; }
     .album-title { font-family: 'Great Vibes', cursive; font-size: 2rem; color: #ffffff; }
     .brand-center { font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: var(--primary); text-align: center; }
-    .header-right { justify-self: end; }
+    .header-right { justify-self: end; display: flex; align-items: center; gap: 1rem; }
+
+    /* Admin Button: Hidden by default for public */
+    .btn-admin {
+      display: none;
+      background: var(--primary); color: #0f1115; border: none;
+      padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem;
+      font-weight: 600; cursor: pointer; align-items: center; gap: 0.6rem;
+    }
+    .btn-admin:hover { background: var(--primary-hover); }
+
+    /* Connection Status Indicator Light */
+    .sync-indicator-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background-color: var(--danger);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+      display: inline-block;
+    }
+    .sync-indicator-dot.connected {
+      background-color: var(--success);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.9);
+    }
 
     .container { max-width: 1400px; margin: 2.5rem auto; padding: 0 1.5rem; flex-grow: 1; width: 100%; }
 
@@ -60,7 +83,7 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
-    /* Grid */
+    /* Grid Folders */
     .album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
     @media (max-width: 1024px) { .album-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 640px) { .album-grid { grid-template-columns: 1fr; } }
@@ -92,6 +115,7 @@
     .action-bar { display: flex; gap: 0.75rem; }
     .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); width: auto; padding: 0.5rem 1rem; }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
+    .btn-upload-admin { display: none; width: auto; padding: 0.5rem 1rem; }
 
     .photo-grid { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1.5rem; }
     .photo-card {
@@ -99,8 +123,24 @@
       overflow: hidden; min-width: 240px; max-width: 240px; flex-shrink: 0;
     }
     .photo-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
-    .photo-footer { padding: 0.6rem; text-align: center; }
-    .photo-title { font-size: 0.75rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+    .photo-footer { padding: 0.6rem; display: flex; justify-content: space-between; align-items: center; }
+    .photo-title { font-size: 0.75rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+    .btn-delete-admin { display: none; background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; }
+
+    /* Modals */
+    .modal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal-content {
+      background: var(--card-bg); border: 1px solid var(--border);
+      padding: 2rem; border-radius: 12px; width: 100%; max-width: 440px;
+    }
+    .modal-content input {
+      width: 100%; padding: 0.7rem; margin-top: 0.25rem; margin-bottom: 1rem;
+      background: #0f1115; border: 1px solid var(--border); color: white; border-radius: 6px;
+    }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
   </style>
 </head>
 <body>
@@ -108,7 +148,12 @@
   <header>
     <div class="header-left"><div class="album-title">Leni & Jackson</div></div>
     <div class="brand-center">Memories For Ever</div>
-    <div class="header-right"></div>
+    <div class="header-right">
+      <button class="btn-admin" id="btnAdmin">
+        Admin Panel
+        <span class="sync-indicator-dot" id="syncDot" title="GitHub Connection Status"></span>
+      </button>
+    </div>
   </header>
 
   <main class="container">
@@ -130,70 +175,210 @@
         <h2 class="folder-heading" id="current-folder-title">Folder</h2>
         <div class="action-bar">
           <button class="btn btn-secondary" onclick="goHome()">🏠 Home</button>
+          <button class="btn btn-upload-admin" id="btnUploadAdmin">Upload Photo</button>
         </div>
       </div>
       <div id="photo-grid" class="photo-grid"></div>
     </div>
   </main>
 
+  <!-- Upload Modal -->
+  <div id="addModal" class="modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 1rem;">Upload Photo to GitHub</h3>
+      <input type="file" id="fileInput" accept="image/*">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="closeUploadModal">Cancel</button>
+        <button class="btn" id="btnSubmitUpload">Upload & Push</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Settings Modal -->
+  <div id="adminPanelModal" class="modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 1rem;">GitHub Repository Sync</h3>
+      <label style="font-size: 0.8rem; color: var(--text-muted);">Repository Username</label>
+      <input type="text" id="ghOwner" placeholder="e.g. sethukrishnan7561">
+      <label style="font-size: 0.8rem; color: var(--text-muted);">Repository Name</label>
+      <input type="text" id="ghRepo" placeholder="e.g. WEDDING-SITE">
+      <label style="font-size: 0.8rem; color: var(--text-muted);">Branch</label>
+      <input type="text" id="ghBranch" value="main">
+      <label style="font-size: 0.8rem; color: var(--text-muted);">Personal Access Token (PAT)</label>
+      <input type="password" id="ghToken" placeholder="ghp_...">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="closeAdminModal">Cancel</button>
+        <button class="btn" id="saveAdminBtn">Save & Connect</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    const DEFAULT_OWNER = "sethukrishnan7561";
+    const DEFAULT_REPO = "WEDDING-SITE";
+    const DEFAULT_BRANCH = "main";
+    const SECRET_ADMIN_PASS = "admin2026";
+
     // Banner Slideshow Script
     const slides = document.querySelectorAll('.banner-slide');
     let curSlide = 0;
-    setInterval(() => {
-      slides[curSlide].classList.remove('active');
-      curSlide = (curSlide + 1) % slides.length;
-      slides[curSlide].classList.add('active');
-    }, 4500);
+    if (slides.length > 0) {
+      setInterval(() => {
+        slides[curSlide].classList.remove('active');
+        curSlide = (curSlide + 1) % slides.length;
+        slides[curSlide].classList.add('active');
+      }, 4500);
+    }
 
-    // Sample/Default folders with placeholder photos for each category
     const folders = [
-      { 
-        id: "save-the-date", 
-        title: "Save the date", 
-        defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
-        photos: [
-          { name: "Invitation Shot 1.jpg", url: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
-          { name: "Invitation Shot 2.jpg", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" }
-        ]
-      },
-      { 
-        id: "engagement", 
-        title: "Engagement", 
-        defaultCover: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80",
-        photos: [
-          { name: "Ring Ceremony.jpg", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" },
-          { name: "Couple Portrait.jpg", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" }
-        ]
-      },
-      { 
-        id: "wedding", 
-        title: "Wedding", 
-        defaultCover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80",
-        photos: [
-          { name: "Ceremony.jpg", url: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" },
-          { name: "Altar View.jpg", url: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" }
-        ]
-      },
-      { 
-        id: "highlights", 
-        title: "Highlights", 
-        defaultCover: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=800&q=80",
-        photos: [
-          { name: "Reception Party.jpg", url: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=800&q=80" },
-          { name: "First Dance.jpg", url: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" }
-        ]
-      }
+      { id: "save-the-date", title: "Save the date", defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
+      { id: "engagement", title: "Engagement", defaultCover: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" },
+      { id: "wedding", title: "Wedding", defaultCover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" },
+      { id: "highlights", title: "Highlights", defaultCover: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=800&q=80" }
     ];
 
     let currentFolderId = "";
+    let isAdmin = false;
 
-    function renderFolders() {
+    // Check URL for secret key authorization
+    function checkAdminAccess() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("key") === SECRET_ADMIN_PASS) {
+        localStorage.setItem("admin_authorized", "true");
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      if (localStorage.getItem("admin_authorized") === "true") {
+        isAdmin = true;
+        const btnAdmin = document.getElementById("btnAdmin");
+        const btnUploadAdmin = document.getElementById("btnUploadAdmin");
+        if (btnAdmin) btnAdmin.style.display = "inline-flex";
+        if (btnUploadAdmin) btnUploadAdmin.style.display = "inline-block";
+      }
+    }
+
+    // Event Listeners Binding on Page Load
+    document.addEventListener("DOMContentLoaded", async () => {
+      checkAdminAccess();
+
+      // Bind Admin Panel open/close
+      const btnAdmin = document.getElementById("btnAdmin");
+      const adminModal = document.getElementById("adminPanelModal");
+      const closeAdminModal = document.getElementById("closeAdminModal");
+      const saveAdminBtn = document.getElementById("saveAdminBtn");
+
+      if (btnAdmin) {
+        btnAdmin.addEventListener("click", () => {
+          adminModal.style.display = "flex";
+          document.getElementById("ghOwner").value = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+          document.getElementById("ghRepo").value = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+          document.getElementById("ghBranch").value = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+          document.getElementById("ghToken").value = localStorage.getItem("gh_token") || "";
+        });
+      }
+
+      if (closeAdminModal) {
+        closeAdminModal.addEventListener("click", () => {
+          adminModal.style.display = "none";
+        });
+      }
+
+      if (saveAdminBtn) {
+        saveAdminBtn.addEventListener("click", async () => {
+          const owner = document.getElementById("ghOwner").value.trim();
+          const repo = document.getElementById("ghRepo").value.trim();
+          const branch = document.getElementById("ghBranch").value.trim();
+          const token = document.getElementById("ghToken").value.trim();
+
+          localStorage.setItem("gh_owner", owner);
+          localStorage.setItem("gh_repo", repo);
+          localStorage.setItem("gh_branch", branch);
+          localStorage.setItem("gh_token", token);
+
+          adminModal.style.display = "none";
+          await checkHealth();
+          renderFolders();
+        });
+      }
+
+      // Bind Upload Modal open/close
+      const btnUploadAdmin = document.getElementById("btnUploadAdmin");
+      const addModal = document.getElementById("addModal");
+      const closeUploadModal = document.getElementById("closeUploadModal");
+      const btnSubmitUpload = document.getElementById("btnSubmitUpload");
+
+      if (btnUploadAdmin) {
+        btnUploadAdmin.addEventListener("click", () => {
+          document.getElementById("fileInput").value = "";
+          addModal.style.display = "flex";
+        });
+      }
+
+      if (closeUploadModal) {
+        closeUploadModal.addEventListener("click", () => {
+          addModal.style.display = "none";
+        });
+      }
+
+      if (btnSubmitUpload) {
+        btnSubmitUpload.addEventListener("click", uploadPhotoToGitHub);
+      }
+
+      await checkHealth();
+      await renderFolders();
+    });
+
+    async function checkHealth() {
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const token = localStorage.getItem("gh_token");
+
+      const dot = document.getElementById("syncDot");
+      if (!dot) return;
+
+      try {
+        const headers = { "Accept": "application/vnd.github+json" };
+        if (token) headers["Authorization"] = `token ${token}`;
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
+        if (res.ok) {
+          dot.classList.add("connected");
+        } else {
+          dot.classList.remove("connected");
+        }
+      } catch (e) {
+        dot.classList.remove("connected");
+      }
+    }
+
+    async function fetchGitHubFolder(folderId) {
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+      const token = localStorage.getItem("gh_token");
+
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/uploads/${folderId}?ref=${branch}`;
+      const headers = { "Accept": "application/vnd.github+json" };
+      if (token) headers["Authorization"] = `token ${token}`;
+
+      try {
+        const res = await fetch(url, { headers });
+        if (!res.ok) return [];
+        const files = await res.json();
+        return files.filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f.name));
+      } catch (err) {
+        console.error("Failed fetching GitHub folder:", err);
+        return [];
+      }
+    }
+
+    async function renderFolders() {
       const grid = document.getElementById("folder-grid");
+      if (!grid) return;
       grid.innerHTML = "";
 
-      folders.forEach(f => {
-        const coverSrc = f.photos.length > 0 ? f.photos[0].url : f.defaultCover;
+      for (const f of folders) {
+        const files = await fetchGitHubFolder(f.id);
+        const coverSrc = files.length > 0 ? files[files.length - 1].download_url : f.defaultCover;
 
         const card = document.createElement("div");
         card.className = "album-card";
@@ -207,48 +392,157 @@
           </div>
         `;
         grid.appendChild(card);
-      });
+      }
     }
 
-    function openFolder(id, title) {
+    window.openFolder = async function(id, title) {
       currentFolderId = id;
       document.getElementById("current-folder-title").textContent = title;
       document.getElementById("home-view").style.display = "none";
       document.getElementById("gallery-view").style.display = "block";
-      renderPhotos();
+      await renderPhotos();
     }
 
-    function goHome() {
+    window.goHome = function() {
       document.getElementById("gallery-view").style.display = "none";
       document.getElementById("home-view").style.display = "block";
+      renderFolders();
     }
 
-    function renderPhotos() {
+    async function renderPhotos() {
       const grid = document.getElementById("photo-grid");
+      if (!grid) return;
+      grid.innerHTML = "<p style='color: var(--text-muted);'>Loading memories...</p>";
+
+      const files = await fetchGitHubFolder(currentFolderId);
       grid.innerHTML = "";
 
-      const folder = folders.find(f => f.id === currentFolderId);
-      if (!folder || folder.photos.length === 0) {
+      if (files.length === 0) {
         grid.innerHTML = "<p style='color: var(--text-muted); padding: 1.5rem 0;'>No photos found in this collection.</p>";
         return;
       }
 
-      folder.photos.forEach(photo => {
+      files.forEach(file => {
         const card = document.createElement("div");
         card.className = "photo-card";
         card.innerHTML = `
-          <img src="${photo.url}" alt="${photo.name}" onclick="window.open('${photo.url}', '_blank')">
+          <img src="${file.download_url}" alt="${file.name}" onclick="window.open('${file.download_url}', '_blank')">
           <div class="photo-footer">
-            <span class="photo-title">${photo.name}</span>
+            <span class="photo-title">${file.name}</span>
+            <button class="btn-delete-admin" style="${isAdmin ? 'display:inline-block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
           </div>
         `;
         grid.appendChild(card);
       });
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      renderFolders();
-    });
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function uploadPhotoToGitHub() {
+      const token = localStorage.getItem("gh_token");
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+
+      if (!token) {
+        alert("Please open Admin Panel and enter your GitHub PAT token first!");
+        return;
+      }
+
+      const fileInput = document.getElementById("fileInput");
+      if (!fileInput.files[0]) {
+        alert("Please select an image file.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const btn = document.getElementById("btnSubmitUpload");
+      btn.innerText = "Uploading...";
+      btn.disabled = true;
+
+      try {
+        const base64 = await fileToBase64(file);
+        const filename = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
+        const path = `uploads/${currentFolderId}/${filename}`;
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": `token ${token.trim()}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `Add ${filename} via Admin Panel`,
+            content: base64,
+            branch: branch
+          })
+        });
+
+        if (res.ok) {
+          document.getElementById("addModal").style.display = "none";
+          alert("Uploaded successfully to GitHub repository!");
+          await renderPhotos();
+        } else {
+          const err = await res.json();
+          alert("GitHub error: " + err.message);
+        }
+      } catch (err) {
+        alert("Upload error: " + err.message);
+      } finally {
+        btn.innerText = "Upload & Push";
+        btn.disabled = false;
+      }
+    }
+
+    window.deletePhotoFromGitHub = async function(path, sha) {
+      const token = localStorage.getItem("gh_token");
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+
+      if (!token) {
+        alert("Unauthorized. Set your token in Admin Panel.");
+        return;
+      }
+
+      if (!confirm("Are you sure you want to permanently delete this photo from GitHub?")) return;
+
+      try {
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+        const res = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": `token ${token.trim()}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `Delete ${path} via Admin Panel`,
+            sha: sha,
+            branch: branch
+          })
+        });
+
+        if (res.ok) {
+          alert("Photo deleted from repository.");
+          await renderPhotos();
+        } else {
+          const err = await res.json();
+          alert("Delete failed: " + err.message);
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
   </script>
 </body>
 </html>
