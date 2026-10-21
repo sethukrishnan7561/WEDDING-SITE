@@ -83,12 +83,18 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
-    /* Grid Folders & Photo Grid (Vertical Grid Format) */
-    .album-grid, .photo-grid { 
-      display: grid; 
+    /* Separate Folder Grid & Photo Grid Layouts */
+    .album-grid { 
+      display: grid !important; 
       grid-template-columns: repeat(4, 1fr); 
       gap: 1.5rem; 
     }
+    .photo-grid { 
+      display: grid !important; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 1.5rem; 
+    }
+
     @media (max-width: 1024px) { 
       .album-grid, .photo-grid { grid-template-columns: repeat(2, 1fr); } 
     }
@@ -214,7 +220,7 @@
     </div>
   </div>
 
-  <!-- Upload Modal with Multiple Selection Enabled -->
+  <!-- Upload Modal -->
   <div id="addModal" class="modal">
     <div class="modal-content">
       <h3 style="margin-bottom: 1rem;">Upload Multiple Photos</h3>
@@ -272,7 +278,7 @@
     let currentFolderId = "";
     let isAdmin = false;
 
-    // Check URL for secret key authorization
+    // Check URL for secret key authorization[cite: 1]
     function checkAdminAccess() {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get("key") === SECRET_ADMIN_PASS) {
@@ -292,6 +298,9 @@
     // Event Listeners Binding on Page Load
     document.addEventListener("DOMContentLoaded", async () => {
       checkAdminAccess();
+      
+      // Render folders immediately using default covers before API check
+      renderFolders(true);
 
       // Bind Admin Panel open/close
       const btnAdmin = document.getElementById("btnAdmin");
@@ -329,7 +338,7 @@
 
           adminModal.style.display = "none";
           await checkHealth();
-          renderFolders();
+          renderFolders(false);
         });
       }
 
@@ -384,7 +393,7 @@
       }
 
       await checkHealth();
-      await renderFolders();
+      renderFolders(false);
     });
 
     async function checkHealth() {
@@ -430,14 +439,20 @@
       }
     }
 
-    async function renderFolders() {
+    async function renderFolders(useDefaultsOnly = false) {
       const grid = document.getElementById("folder-grid");
       if (!grid) return;
       grid.innerHTML = "";
 
       for (const f of folders) {
-        const files = await fetchGitHubFolder(f.id);
-        const coverSrc = files.length > 0 ? files[files.length - 1].download_url : f.defaultCover;
+        let coverSrc = f.defaultCover;
+        
+        if (!useDefaultsOnly) {
+          const files = await fetchGitHubFolder(f.id);
+          if (files.length > 0) {
+            coverSrc = files[files.length - 1].download_url;
+          }
+        }
 
         const card = document.createElement("div");
         card.className = "album-card";
@@ -465,7 +480,7 @@
     window.goHome = function() {
       document.getElementById("gallery-view").style.display = "none";
       document.getElementById("home-view").style.display = "block";
-      renderFolders();
+      renderFolders(false);
     }
 
     async function renderPhotos() {
