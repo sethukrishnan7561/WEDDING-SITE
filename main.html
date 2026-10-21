@@ -27,7 +27,7 @@
       color: var(--text); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column;
     }
 
-    /* 3-Column Header */
+    /* Header */
     header {
       background: rgba(22, 25, 32, 0.85); backdrop-filter: blur(10px);
       padding: 1rem 2rem; display: grid; grid-template-columns: 1fr auto 1fr;
@@ -42,7 +42,7 @@
 
     /* Admin Button */
     .btn-admin {
-      display: inline-flex;
+      display: inline-flex !important;
       background: var(--primary); color: #0f1115; border: none;
       padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem;
       font-weight: 600; cursor: pointer; align-items: center; gap: 0.6rem;
@@ -149,7 +149,7 @@
     <div class="header-left"><div class="album-title">Leni & Jackson</div></div>
     <div class="brand-center">Memories For Ever</div>
     <div class="header-right">
-      <button class="btn-admin" id="btnAdmin" onclick="openAdminPanel()">
+      <button class="btn-admin" id="btnAdmin">
         Admin Panel
         <span class="sync-indicator-dot" id="syncDot" title="GitHub Connection Status"></span>
       </button>
@@ -175,7 +175,7 @@
         <h2 class="folder-heading" id="current-folder-title">Folder</h2>
         <div class="action-bar">
           <button class="btn btn-secondary" onclick="goHome()">🏠 Home</button>
-          <button class="btn btn-upload-admin" id="btnUploadAdmin" onclick="openAddModal()">Upload Photo</button>
+          <button class="btn btn-upload-admin" id="btnUploadAdmin">Upload Photo</button>
         </div>
       </div>
       <div id="photo-grid" class="photo-grid"></div>
@@ -188,8 +188,8 @@
       <h3 style="margin-bottom: 1rem;">Upload Photo to GitHub</h3>
       <input type="file" id="fileInput" accept="image/*">
       <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="document.getElementById('addModal').style.display='none'">Cancel</button>
-        <button class="btn" id="btnSubmitUpload" onclick="uploadPhotoToGitHub()">Upload & Push</button>
+        <button class="btn btn-secondary" id="closeUploadModal">Cancel</button>
+        <button class="btn" id="btnSubmitUpload">Upload & Push</button>
       </div>
     </div>
   </div>
@@ -207,25 +207,27 @@
       <label style="font-size: 0.8rem; color: var(--text-muted);">Personal Access Token (PAT)</label>
       <input type="password" id="ghToken" placeholder="ghp_...">
       <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="document.getElementById('adminPanelModal').style.display='none'">Cancel</button>
-        <button class="btn" onclick="saveAdminSettings()">Save & Connect</button>
+        <button class="btn btn-secondary" id="closeAdminModal">Cancel</button>
+        <button class="btn" id="saveAdminBtn">Save & Connect</button>
       </div>
     </div>
   </div>
 
   <script>
-    const DEFAULT_OWNER = "sethukrishnan7561";[cite: 1]
-    const DEFAULT_REPO = "WEDDING-SITE";[cite: 1]
+    const DEFAULT_OWNER = "sethukrishnan7561";
+    const DEFAULT_REPO = "WEDDING-SITE";
     const DEFAULT_BRANCH = "main";
 
     // Banner Slideshow Script
     const slides = document.querySelectorAll('.banner-slide');
     let curSlide = 0;
-    setInterval(() => {
-      slides[curSlide].classList.remove('active');
-      curSlide = (curSlide + 1) % slides.length;
-      slides[curSlide].classList.add('active');
-    }, 4500);
+    if (slides.length > 0) {
+      setInterval(() => {
+        slides[curSlide].classList.remove('active');
+        curSlide = (curSlide + 1) % slides.length;
+        slides[curSlide].classList.add('active');
+      }, 4500);
+    }
 
     const folders = [
       { id: "save-the-date", title: "Save the date", defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
@@ -235,31 +237,75 @@
     ];
 
     let currentFolderId = "";
-    let isAdmin = true;
 
-    function openAdminPanel() {
-      document.getElementById("adminPanelModal").style.display = "flex";
-      document.getElementById("ghOwner").value = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
-      document.getElementById("ghRepo").value = localStorage.getItem("gh_repo") || DEFAULT_REPO;
-      document.getElementById("ghBranch").value = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
-      document.getElementById("ghToken").value = localStorage.getItem("gh_token") || "";
-    }
+    // Event Listeners Binding on Page Load
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Bind Admin Panel open/close
+      const btnAdmin = document.getElementById("btnAdmin");
+      const adminModal = document.getElementById("adminPanelModal");
+      const closeAdminModal = document.getElementById("closeAdminModal");
+      const saveAdminBtn = document.getElementById("saveAdminBtn");
 
-    async function saveAdminSettings() {
-      const owner = document.getElementById("ghOwner").value.trim();
-      const repo = document.getElementById("ghRepo").value.trim();
-      const branch = document.getElementById("ghBranch").value.trim();
-      const token = document.getElementById("ghToken").value.trim();
+      if (btnAdmin) {
+        btnAdmin.addEventListener("click", () => {
+          adminModal.style.display = "flex";
+          document.getElementById("ghOwner").value = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+          document.getElementById("ghRepo").value = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+          document.getElementById("ghBranch").value = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+          document.getElementById("ghToken").value = localStorage.getItem("gh_token") || "";
+        });
+      }
 
-      localStorage.setItem("gh_owner", owner);
-      localStorage.setItem("gh_repo", repo);
-      localStorage.setItem("gh_branch", branch);
-      localStorage.setItem("gh_token", token);
+      if (closeAdminModal) {
+        closeAdminModal.addEventListener("click", () => {
+          adminModal.style.display = "none";
+        });
+      }
 
-      document.getElementById("adminPanelModal").style.display = "none";
+      if (saveAdminBtn) {
+        saveAdminBtn.addEventListener("click", async () => {
+          const owner = document.getElementById("ghOwner").value.trim();
+          const repo = document.getElementById("ghRepo").value.trim();
+          const branch = document.getElementById("ghBranch").value.trim();
+          const token = document.getElementById("ghToken").value.trim();
+
+          localStorage.setItem("gh_owner", owner);
+          localStorage.setItem("gh_repo", repo);
+          localStorage.setItem("gh_branch", branch);
+          localStorage.setItem("gh_token", token);
+
+          adminModal.style.display = "none";
+          await checkHealth();
+          renderFolders();
+        });
+      }
+
+      // Bind Upload Modal open/close
+      const btnUploadAdmin = document.getElementById("btnUploadAdmin");
+      const addModal = document.getElementById("addModal");
+      const closeUploadModal = document.getElementById("closeUploadModal");
+      const btnSubmitUpload = document.getElementById("btnSubmitUpload");
+
+      if (btnUploadAdmin) {
+        btnUploadAdmin.addEventListener("click", () => {
+          document.getElementById("fileInput").value = "";
+          addModal.style.display = "flex";
+        });
+      }
+
+      if (closeUploadModal) {
+        closeUploadModal.addEventListener("click", () => {
+          addModal.style.display = "none";
+        });
+      }
+
+      if (btnSubmitUpload) {
+        btnSubmitUpload.addEventListener("click", uploadPhotoToGitHub);
+      }
+
       await checkHealth();
-      renderFolders();
-    }
+      await renderFolders();
+    });
 
     async function checkHealth() {
       const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
@@ -267,6 +313,8 @@
       const token = localStorage.getItem("gh_token");
 
       const dot = document.getElementById("syncDot");
+      if (!dot) return;
+
       try {
         const headers = { "Accept": "application/vnd.github+json" };
         if (token) headers["Authorization"] = `token ${token}`;
@@ -304,6 +352,7 @@
 
     async function renderFolders() {
       const grid = document.getElementById("folder-grid");
+      if (!grid) return;
       grid.innerHTML = "";
 
       for (const f of folders) {
@@ -325,7 +374,7 @@
       }
     }
 
-    async function openFolder(id, title) {
+    window.openFolder = async function(id, title) {
       currentFolderId = id;
       document.getElementById("current-folder-title").textContent = title;
       document.getElementById("home-view").style.display = "none";
@@ -333,7 +382,7 @@
       await renderPhotos();
     }
 
-    function goHome() {
+    window.goHome = function() {
       document.getElementById("gallery-view").style.display = "none";
       document.getElementById("home-view").style.display = "block";
       renderFolders();
@@ -341,6 +390,7 @@
 
     async function renderPhotos() {
       const grid = document.getElementById("photo-grid");
+      if (!grid) return;
       grid.innerHTML = "<p style='color: var(--text-muted);'>Loading memories...</p>";
 
       const files = await fetchGitHubFolder(currentFolderId);
@@ -363,11 +413,6 @@
         `;
         grid.appendChild(card);
       });
-    }
-
-    function openAddModal() {
-      document.getElementById("fileInput").value = "";
-      document.getElementById("addModal").style.display = "flex";
     }
 
     function fileToBase64(file) {
@@ -437,7 +482,7 @@
       }
     }
 
-    async function deletePhotoFromGitHub(path, sha) {
+    window.deletePhotoFromGitHub = async function(path, sha) {
       const token = localStorage.getItem("gh_token");
       const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
       const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
@@ -477,11 +522,6 @@
         alert("Error: " + err.message);
       }
     }
-
-    window.addEventListener("DOMContentLoaded", async () => {
-      await checkHealth();
-      await renderFolders();
-    });
   </script>
 </body>
 </html>
