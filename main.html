@@ -40,9 +40,9 @@
     .brand-center { font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: var(--primary); text-align: center; }
     .header-right { justify-self: end; display: flex; align-items: center; gap: 1rem; }
 
-    /* Admin Button */
+    /* Admin Button: Hidden by default for public */
     .btn-admin {
-      display: inline-flex !important;
+      display: none;
       background: var(--primary); color: #0f1115; border: none;
       padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem;
       font-weight: 600; cursor: pointer; align-items: center; gap: 0.6rem;
@@ -115,7 +115,7 @@
     .action-bar { display: flex; gap: 0.75rem; }
     .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); width: auto; padding: 0.5rem 1rem; }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
-    .btn-upload-admin { display: inline-block; width: auto; padding: 0.5rem 1rem; }
+    .btn-upload-admin { display: none; width: auto; padding: 0.5rem 1rem; }
 
     .photo-grid { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1.5rem; }
     .photo-card {
@@ -125,7 +125,7 @@
     .photo-card img { width: 100%; height: 160px; object-fit: cover; cursor: pointer; }
     .photo-footer { padding: 0.6rem; display: flex; justify-content: space-between; align-items: center; }
     .photo-title { font-size: 0.75rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
-    .btn-delete-admin { display: inline-block; background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; }
+    .btn-delete-admin { display: none; background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; }
 
     /* Modals */
     .modal {
@@ -217,6 +217,7 @@
     const DEFAULT_OWNER = "sethukrishnan7561";
     const DEFAULT_REPO = "WEDDING-SITE";
     const DEFAULT_BRANCH = "main";
+    const SECRET_ADMIN_PASS = "admin2026";
 
     // Banner Slideshow Script
     const slides = document.querySelectorAll('.banner-slide');
@@ -237,9 +238,29 @@
     ];
 
     let currentFolderId = "";
+    let isAdmin = false;
+
+    // Check URL for secret key authorization
+    function checkAdminAccess() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("key") === SECRET_ADMIN_PASS) {
+        localStorage.setItem("admin_authorized", "true");
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      if (localStorage.getItem("admin_authorized") === "true") {
+        isAdmin = true;
+        const btnAdmin = document.getElementById("btnAdmin");
+        const btnUploadAdmin = document.getElementById("btnUploadAdmin");
+        if (btnAdmin) btnAdmin.style.display = "inline-flex";
+        if (btnUploadAdmin) btnUploadAdmin.style.display = "inline-block";
+      }
+    }
 
     // Event Listeners Binding on Page Load
     document.addEventListener("DOMContentLoaded", async () => {
+      checkAdminAccess();
+
       // Bind Admin Panel open/close
       const btnAdmin = document.getElementById("btnAdmin");
       const adminModal = document.getElementById("adminPanelModal");
@@ -408,7 +429,7 @@
           <img src="${file.download_url}" alt="${file.name}" onclick="window.open('${file.download_url}', '_blank')">
           <div class="photo-footer">
             <span class="photo-title">${file.name}</span>
-            <button class="btn-delete-admin" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
+            <button class="btn-delete-admin" style="${isAdmin ? 'display:inline-block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
           </div>
         `;
         grid.appendChild(card);
