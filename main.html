@@ -129,7 +129,7 @@
 
     /* Modals */
     .modal {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
       backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000;
     }
     .modal-content {
@@ -141,6 +141,24 @@
       background: #0f1115; border: 1px solid var(--border); color: white; border-radius: 6px;
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+    /* Lightbox Viewer Styles */
+    .lightbox-container {
+      position: relative; max-width: 90vw; max-height: 90vh; text-align: center;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .lightbox-img {
+      max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px;
+      transition: transform 0.3s ease; cursor: zoom-in;
+    }
+    .lightbox-img.zoomed {
+      transform: scale(1.8);
+      cursor: zoom-out;
+    }
+    .lightbox-close {
+      position: absolute; top: -45px; right: 0; background: none; border: none;
+      color: white; font-size: 2rem; cursor: pointer; font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -160,8 +178,9 @@
     <!-- Home / Folder Grid View -->
     <div id="home-view" class="view-section" style="display: block;">
       <div class="banner-section">
-        <div class="banner-slide active" style="background-image: url('family.jpg');"></div>
+        <div class="banner-slide active" style="background-image: url('family1.jpg');"></div>
         <div class="banner-slide" style="background-image: url('cover.jpg');"></div>
+        <div class="banner-slide" style="background-image: url('family3.jpg');"></div>
         <div class="banner-slide" style="background-image: url('family2.jpg');"></div>
         <button class="btn-search-memories" onclick="document.getElementById('folder-grid').scrollIntoView({behavior:'smooth'})">Search Memories</button>
       </div>
@@ -175,21 +194,30 @@
         <h2 class="folder-heading" id="current-folder-title">Folder</h2>
         <div class="action-bar">
           <button class="btn btn-secondary" onclick="goHome()">🏠 Home</button>
-          <button class="btn btn-upload-admin" id="btnUploadAdmin">Upload Photo</button>
+          <button class="btn btn-upload-admin" id="btnUploadAdmin">Upload Photos</button>
         </div>
       </div>
       <div id="photo-grid" class="photo-grid"></div>
     </div>
   </main>
 
-  <!-- Upload Modal -->
+  <!-- Image Lightbox Modal -->
+  <div id="lightboxModal" class="modal">
+    <div class="lightbox-container">
+      <button class="lightbox-close" id="closeLightbox">&times;</button>
+      <img id="lightboxImg" class="lightbox-img" src="" alt="Enlarged View">
+      <p id="lightboxCaption" style="color: var(--text-muted); margin-top: 1rem; font-size: 0.9rem;"></p>
+    </div>
+  </div>
+
+  <!-- Upload Modal with Multiple Selection Enabled -->
   <div id="addModal" class="modal">
     <div class="modal-content">
-      <h3 style="margin-bottom: 1rem;">Upload Photo to GitHub</h3>
-      <input type="file" id="fileInput" accept="image/*">
+      <h3 style="margin-bottom: 1rem;">Upload Multiple Photos</h3>
+      <input type="file" id="fileInput" accept="image/*" multiple>
       <div class="modal-actions">
         <button class="btn btn-secondary" id="closeUploadModal">Cancel</button>
-        <button class="btn" id="btnSubmitUpload">Upload & Push</button>
+        <button class="btn" id="btnSubmitUpload">Upload All & Push</button>
       </div>
     </div>
   </div>
@@ -214,8 +242,8 @@
   </div>
 
   <script>
-    const DEFAULT_OWNER = "sethukrishnan7561";
-    const DEFAULT_REPO = "WEDDING-SITE";
+    const DEFAULT_OWNER = "sethukrishnan7561";[cite: 1]
+    const DEFAULT_REPO = "WEDDING-SITE";[cite: 1]
     const DEFAULT_BRANCH = "main";
     const SECRET_ADMIN_PASS = "admin2026";
 
@@ -321,7 +349,34 @@
       }
 
       if (btnSubmitUpload) {
-        btnSubmitUpload.addEventListener("click", uploadPhotoToGitHub);
+        btnSubmitUpload.addEventListener("click", uploadMultiplePhotosToGitHub);
+      }
+
+      // Bind Lightbox Zoom & Close behaviors
+      const lightboxModal = document.getElementById("lightboxModal");
+      const closeLightbox = document.getElementById("closeLightbox");
+      const lightboxImg = document.getElementById("lightboxImg");
+
+      if (closeLightbox) {
+        closeLightbox.addEventListener("click", () => {
+          lightboxModal.style.display = "none";
+          lightboxImg.classList.remove("zoomed");
+        });
+      }
+
+      if (lightboxImg) {
+        lightboxImg.addEventListener("click", () => {
+          lightboxImg.classList.toggle("zoomed");
+        });
+      }
+
+      if (lightboxModal) {
+        lightboxModal.addEventListener("click", (e) => {
+          if (e.target === lightboxModal) {
+            lightboxModal.style.display = "none";
+            lightboxImg.classList.remove("zoomed");
+          }
+        });
       }
 
       await checkHealth();
@@ -426,7 +481,7 @@
         const card = document.createElement("div");
         card.className = "photo-card";
         card.innerHTML = `
-          <img src="${file.download_url}" alt="${file.name}" onclick="window.open('${file.download_url}', '_blank')">
+          <img src="${file.download_url}" alt="${file.name}" onclick="openLightbox('${file.download_url}', '${file.name}')">
           <div class="photo-footer">
             <span class="photo-title">${file.name}</span>
             <button class="btn-delete-admin" style="${isAdmin ? 'display:inline-block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
@@ -434,6 +489,17 @@
         `;
         grid.appendChild(card);
       });
+    }
+
+    window.openLightbox = function(url, title) {
+      const lightboxModal = document.getElementById("lightboxModal");
+      const lightboxImg = document.getElementById("lightboxImg");
+      const lightboxCaption = document.getElementById("lightboxCaption");
+
+      lightboxImg.src = url;
+      lightboxImg.classList.remove("zoomed");
+      lightboxCaption.textContent = title;
+      lightboxModal.style.display = "flex";
     }
 
     function fileToBase64(file) {
@@ -445,7 +511,8 @@
       });
     }
 
-    async function uploadPhotoToGitHub() {
+    // Multiple Upload Handler
+    async function uploadMultiplePhotosToGitHub() {
       const token = localStorage.getItem("gh_token");
       const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
       const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
@@ -457,48 +524,52 @@
       }
 
       const fileInput = document.getElementById("fileInput");
-      if (!fileInput.files[0]) {
-        alert("Please select an image file.");
+      const files = fileInput.files;
+      if (!files || files.length === 0) {
+        alert("Please select one or more image files.");
         return;
       }
 
-      const file = fileInput.files[0];
       const btn = document.getElementById("btnSubmitUpload");
-      btn.innerText = "Uploading...";
       btn.disabled = true;
 
       try {
-        const base64 = await fileToBase64(file);
-        const filename = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
-        const path = `uploads/${currentFolderId}/${filename}`;
-        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          btn.innerText = `Uploading (${i + 1}/${files.length})...`;
+          
+          const base64 = await fileToBase64(file);
+          const filename = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
+          const path = `uploads/${currentFolderId}/${filename}`;
+          const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 
-        const res = await fetch(url, {
-          method: "PUT",
-          headers: {
-            "Accept": "application/vnd.github+json",
-            "Authorization": `token ${token.trim()}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: `Add ${filename} via Admin Panel`,
-            content: base64,
-            branch: branch
-          })
-        });
+          const res = await fetch(url, {
+            method: "PUT",
+            headers: {
+              "Accept": "application/vnd.github+json",
+              "Authorization": `token ${token.trim()}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              message: `Add ${filename} via Admin Panel`,
+              content: base64,
+              branch: branch
+            })
+          });
 
-        if (res.ok) {
-          document.getElementById("addModal").style.display = "none";
-          alert("Uploaded successfully to GitHub repository!");
-          await renderPhotos();
-        } else {
-          const err = await res.json();
-          alert("GitHub error: " + err.message);
+          if (!res.ok) {
+            const err = await res.json();
+            console.error(`Failed to upload ${file.name}:`, err.message);
+          }
         }
+
+        document.getElementById("addModal").style.display = "none";
+        alert("All selected photos uploaded successfully to GitHub repository!");
+        await renderPhotos();
       } catch (err) {
         alert("Upload error: " + err.message);
       } finally {
-        btn.innerText = "Upload & Push";
+        btn.innerText = "Upload All & Push";
         btn.disabled = false;
       }
     }
