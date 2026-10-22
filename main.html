@@ -20,7 +20,6 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     
-    /* Added Smooth Scrolling */
     html {
       scroll-behavior: smooth;
     }
@@ -46,7 +45,6 @@
     .brand-center { font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: var(--primary); text-align: center; }
     .header-right { justify-self: end; display: flex; align-items: center; gap: 1rem; }
 
-    /* Admin Button: Hidden by default for public */
     .btn-admin {
       display: none;
       background: var(--primary); color: #0f1115; border: none;
@@ -55,7 +53,6 @@
     }
     .btn-admin:hover { background: var(--primary-hover); }
 
-    /* Connection Status Indicator Light */
     .sync-indicator-dot {
       width: 10px; height: 10px; border-radius: 50%;
       background-color: var(--danger);
@@ -81,7 +78,6 @@
     }
     .banner-slide.active { opacity: 1; }
 
-    /* YouTube Video Section (Matches banner width configuration) */
     .video-section {
       width: 100%;
       height: 480px;
@@ -99,12 +95,9 @@
       display: block;
     }
     @media (max-width: 768px) {
-      .video-section {
-        height: 300px;
-      }
+      .video-section { height: 300px; }
     }
 
-    /* Grid Folders - Adjusted to span full width of banner */
     .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; width: 100%; margin: 0 auto; }
     @media (max-width: 1024px) { .album-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 640px) { .album-grid { grid-template-columns: 1fr; } }
@@ -112,12 +105,12 @@
     .album-card {
       background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
       overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
-      text-align: center;
+      text-align: center; position: relative;
     }
-    .cover-container { width: 100%; height: 200px; background-color: #1f2430; }
+    .cover-container { width: 100%; height: 200px; background-color: #1f2430; position: relative; }
     .folder-cover-preview { width: 100%; height: 100%; object-fit: cover; }
-    .card-content { padding: 1.1rem 1rem; }
-    .album-details h3 { font-size: 1.15rem; color: var(--text); font-family: "Georgia", serif; margin-bottom: 0.9rem; }
+    .card-content { padding: 1.1rem 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .album-details h3 { font-size: 1.15rem; color: var(--text); font-family: "Georgia", serif; }
 
     .btn {
       background: var(--primary); color: #0f1115; padding: 0.55rem 0.75rem;
@@ -125,7 +118,12 @@
     }
     .btn:hover { background: var(--primary-hover); }
 
-    /* Gallery View */
+    .btn-cover-admin {
+      display: none; background: #3b82f6; color: white; padding: 0.45rem 0.75rem;
+      border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; width: 100%;
+    }
+    .btn-cover-admin:hover { background: #2563eb; }
+
     .view-section { display: none; }
     .view-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -133,12 +131,13 @@
     }
     .folder-heading { font-family: "Georgia", serif; font-size: 2rem; color: #ffffff; }
 
-    .action-bar { display: flex; gap: 0.75rem; }
+    .action-bar { display: flex; gap: 0.75rem; align-items: center; }
     .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); width: auto; padding: 0.5rem 1rem; }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
-    .btn-upload-admin { display: none; width: auto; padding: 0.5rem 1rem; }
+    .btn-upload-admin, .btn-reorder-admin { display: none; width: auto; padding: 0.5rem 1rem; }
+    .btn-reorder-admin { background: #3b82f6; color: white; border: none; }
+    .btn-reorder-admin:hover { background: #2563eb; }
 
-    /* Perfect Fit Vertical Grid Format */
     .photo-grid { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
@@ -165,29 +164,32 @@
       display: block; 
       transition: transform 0.3s ease;
     }
-    .photo-card img:hover {
-      transform: scale(1.03);
-    }
+    .photo-card img:hover { transform: scale(1.03); }
+
     .btn-delete-admin { 
       display: none; 
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(239, 68, 68, 0.85); 
-      color: white; 
-      border: none; 
-      padding: 0.4rem 0.6rem; 
-      border-radius: 6px; 
-      cursor: pointer; 
-      z-index: 10;
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(239, 68, 68, 0.85); color: white; border: none; 
+      padding: 0.4rem 0.6rem; border-radius: 6px; cursor: pointer; z-index: 10;
       backdrop-filter: blur(4px);
-      transition: background 0.2s;
     }
-    .btn-delete-admin:hover {
-      background: rgba(239, 68, 68, 1);
-    }
+    .btn-delete-admin:hover { background: rgba(239, 68, 68, 1); }
 
-    /* Modals */
+    .reorder-controls {
+      display: none;
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(3px);
+      justify-content: center; align-items: center; gap: 0.5rem;
+      z-index: 20;
+    }
+    .reorder-controls.active { display: flex; }
+    .reorder-btn {
+      background: var(--primary); color: #0f1115; border: none;
+      padding: 0.4rem 0.8rem; font-weight: bold; border-radius: 4px; cursor: pointer;
+    }
+    .reorder-btn:hover { background: var(--primary-hover); }
+
     .modal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
       backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000;
@@ -202,7 +204,6 @@
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
 
-    /* Lightbox Viewer Styles */
     #lightboxModal {
       background: rgba(0, 0, 0, 0.95);
       user-select: none;
@@ -211,52 +212,24 @@
       align-items: center;
     }
     .lightbox-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
+      position: relative; width: 100%; height: 100%;
+      display: flex; justify-content: center; align-items: center; overflow: hidden;
     }
     #lightboxImg {
-      max-width: 85vw;
-      max-height: 80vh;
-      object-fit: contain;
-      transition: transform 0.1s ease-out;
-      cursor: grab;
-      touch-action: none;
+      max-width: 85vw; max-height: 80vh; object-fit: contain;
+      transition: transform 0.1s ease-out; cursor: grab; touch-action: none;
     }
-    #lightboxImg:active {
-      cursor: grabbing;
-    }
+    #lightboxImg:active { cursor: grabbing; }
     .lightbox-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.15);
-      color: white;
-      border: none;
-      font-size: 2rem;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      border-radius: 50%;
-      z-index: 1020;
-      transition: background 0.2s;
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.15); color: white; border: none;
+      font-size: 2rem; padding: 0.5rem 1rem; cursor: pointer; border-radius: 50%;
+      z-index: 1020; transition: background 0.2s;
     }
-    .lightbox-arrow:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
+    .lightbox-arrow:hover { background: rgba(255, 255, 255, 0.3); }
     #lightboxPrev { left: 20px; }
     #lightboxNext { right: 20px; }
-    
-    .lightbox-bottom-bar {
-      position: absolute;
-      bottom: 20px;
-      display: flex;
-      gap: 1rem;
-      z-index: 1020;
-    }
+    .lightbox-bottom-bar { position: absolute; bottom: 20px; display: flex; gap: 1rem; z-index: 1020; }
   </style>
 </head>
 <body>
@@ -282,7 +255,6 @@
         <div class="banner-slide" style="background-image: url('family3.jpg');"></div>
       </div>
       
-      <!-- YouTube Video Player Window -->
       <div class="video-section">
         <iframe src="https://www.youtube.com/embed/gBmXWUkYXc0" 
                 title="YouTube video player" 
@@ -292,7 +264,6 @@
         </iframe>
       </div>
 
-      <!-- Album Folders Grid -->
       <div class="album-grid" id="folder-grid"></div>
     </div>
 
@@ -302,6 +273,7 @@
         <h2 class="folder-heading" id="current-folder-title">Folder</h2>
         <div class="action-bar">
           <button class="btn btn-secondary" onclick="goHome()">🏠 Home</button>
+          <button class="btn btn-reorder-admin" id="btnReorderAdmin" onclick="toggleReorderMode()">↕ Rearrange</button>
           <button class="btn btn-upload-admin" id="btnUploadAdmin">Upload Photo</button>
         </div>
       </div>
@@ -340,7 +312,7 @@
     </div>
   </div>
 
-  <!-- Lightbox Image Viewer Modal with Scroll/Pinch Zoom, Arrows & Swipe -->
+  <!-- Lightbox Image Viewer Modal -->
   <div id="lightboxModal" class="modal">
     <span onclick="closeLightbox()" style="position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: white; cursor: pointer; z-index: 1030;">&times;</span>
     
@@ -362,7 +334,6 @@
     const DEFAULT_BRANCH = "main";
     const SECRET_ADMIN_PASS = "admin2026";
 
-    // Banner Slideshow Script
     const slides = document.querySelectorAll('.banner-slide');
     let curSlide = 0;
     if (slides.length > 0) {
@@ -383,8 +354,9 @@
     let isAdmin = false;
     let currentFiles = [];
     let currentIndex = 0;
+    let isReorderMode = false;
+    let globalCovers = {};
 
-    // Zoom & Pan state variables
     let currentScale = 1;
     let panX = 0;
     let panY = 0;
@@ -404,8 +376,10 @@
         isAdmin = true;
         const btnAdmin = document.getElementById("btnAdmin");
         const btnUploadAdmin = document.getElementById("btnUploadAdmin");
+        const btnReorderAdmin = document.getElementById("btnReorderAdmin");
         if (btnAdmin) btnAdmin.style.display = "inline-flex";
         if (btnUploadAdmin) btnUploadAdmin.style.display = "inline-block";
+        if (btnReorderAdmin) btnReorderAdmin.style.display = "inline-block";
       }
     }
 
@@ -428,25 +402,18 @@
       }
 
       if (closeAdminModal) {
-        closeAdminModal.addEventListener("click", () => {
-          adminModal.style.display = "none";
-        });
+        closeAdminModal.addEventListener("click", () => { adminModal.style.display = "none"; });
       }
 
       if (saveAdminBtn) {
         saveAdminBtn.addEventListener("click", async () => {
-          const owner = document.getElementById("ghOwner").value.trim();
-          const repo = document.getElementById("ghRepo").value.trim();
-          const branch = document.getElementById("ghBranch").value.trim();
-          const token = document.getElementById("ghToken").value.trim();
-
-          localStorage.setItem("gh_owner", owner);
-          localStorage.setItem("gh_repo", repo);
-          localStorage.setItem("gh_branch", branch);
-          localStorage.setItem("gh_token", token);
-
+          localStorage.setItem("gh_owner", document.getElementById("ghOwner").value.trim());
+          localStorage.setItem("gh_repo", document.getElementById("ghRepo").value.trim());
+          localStorage.setItem("gh_branch", document.getElementById("ghBranch").value.trim());
+          localStorage.setItem("gh_token", document.getElementById("ghToken").value.trim());
           adminModal.style.display = "none";
           await checkHealth();
+          await fetchGlobalCovers();
           renderFolders();
         });
       }
@@ -462,20 +429,16 @@
           addModal.style.display = "flex";
         });
       }
-
       if (closeUploadModal) {
-        closeUploadModal.addEventListener("click", () => {
-          addModal.style.display = "none";
-        });
+        closeUploadModal.addEventListener("click", () => { addModal.style.display = "none"; });
       }
-
       if (btnSubmitUpload) {
         btnSubmitUpload.addEventListener("click", uploadPhotoToGitHub);
       }
 
       setupLightboxGestures();
-
       await checkHealth();
+      await fetchGlobalCovers();
       await renderFolders();
     });
 
@@ -483,7 +446,6 @@
       const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
       const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
       const token = localStorage.getItem("gh_token");
-
       const dot = document.getElementById("syncDot");
       if (!dot) return;
 
@@ -491,13 +453,32 @@
         const headers = { "Accept": "application/vnd.github+json" };
         if (token) headers["Authorization"] = `token ${token}`;
         const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
-        if (res.ok) {
-          dot.classList.add("connected");
-        } else {
-          dot.classList.remove("connected");
-        }
+        if (res.ok) dot.classList.add("connected");
+        else dot.classList.remove("connected");
       } catch (e) {
         dot.classList.remove("connected");
+      }
+    }
+
+    async function fetchGlobalCovers() {
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+      const token = localStorage.getItem("gh_token");
+
+      const headers = { "Accept": "application/vnd.github+json" };
+      if (token) headers["Authorization"] = `token ${token}`;
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/uploads/covers.json?ref=${branch}`, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          globalCovers = JSON.parse(atob(data.content));
+        } else {
+          globalCovers = {};
+        }
+      } catch (e) {
+        globalCovers = {};
       }
     }
 
@@ -507,15 +488,36 @@
       const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
       const token = localStorage.getItem("gh_token");
 
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/uploads/${folderId}?ref=${branch}`;
       const headers = { "Accept": "application/vnd.github+json" };
       if (token) headers["Authorization"] = `token ${token}`;
 
       try {
+        let customOrder = [];
+        try {
+          const orderRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/uploads/${folderId}/order.json?ref=${branch}`, { headers });
+          if (orderRes.ok) {
+            const orderData = await orderRes.json();
+            customOrder = JSON.parse(atob(orderData.content));
+          }
+        } catch (err) {}
+
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/uploads/${folderId}?ref=${branch}`;
         const res = await fetch(url, { headers });
         if (!res.ok) return [];
         const files = await res.json();
-        return files.filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f.name));
+        const imageFiles = files.filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f.name));
+
+        if (customOrder.length > 0) {
+          imageFiles.sort((a, b) => {
+            let indexA = customOrder.indexOf(a.name);
+            let indexB = customOrder.indexOf(b.name);
+            if (indexA === -1) indexA = 9999;
+            if (indexB === -1) indexB = 9999;
+            return indexA - indexB;
+          });
+        }
+
+        return imageFiles;
       } catch (err) {
         console.error("Failed fetching GitHub folder:", err);
         return [];
@@ -529,7 +531,14 @@
 
       for (const f of folders) {
         const files = await fetchGitHubFolder(f.id);
-        const coverSrc = files.length > 0 ? files[files.length - 1].download_url : f.defaultCover;
+        
+        // Determine cover source: custom cover URL if set, otherwise first file or default cover
+        let coverSrc = f.defaultCover;
+        if (globalCovers[f.id]) {
+          coverSrc = globalCovers[f.id];
+        } else if (files.length > 0) {
+          coverSrc = files[0].download_url;
+        }
 
         const card = document.createElement("div");
         card.className = "album-card";
@@ -540,6 +549,7 @@
           <div class="card-content">
             <div class="album-details"><h3>${f.title}</h3></div>
             <button class="btn" onclick="openFolder('${f.id}', '${f.title}')">View photos</button>
+            <button class="btn-cover-admin" style="${isAdmin ? 'display:block;' : 'display:none;'}" onclick="openFolderCoverSelector('${f.id}', '${f.title}')">🖼 Change Cover</button>
           </div>
         `;
         grid.appendChild(card);
@@ -548,6 +558,8 @@
 
     window.openFolder = async function(id, title) {
       currentFolderId = id;
+      isReorderMode = false;
+      document.getElementById("btnReorderAdmin").textContent = "↕ Rearrange";
       document.getElementById("current-folder-title").textContent = title;
       document.getElementById("home-view").style.display = "none";
       document.getElementById("gallery-view").style.display = "block";
@@ -555,9 +567,105 @@
     }
 
     window.goHome = function() {
+      isReorderMode = false;
       document.getElementById("gallery-view").style.display = "none";
       document.getElementById("home-view").style.display = "block";
       renderFolders();
+    }
+
+    window.openFolderCoverSelector = async function(folderId, folderTitle) {
+      currentFolderId = folderId;
+      document.getElementById("current-folder-title").textContent = `${folderTitle} (Select Cover Photo)`;
+      document.getElementById("home-view").style.display = "none";
+      document.getElementById("gallery-view").style.display = "block";
+      
+      const grid = document.getElementById("photo-grid");
+      if (!grid) return;
+      grid.innerHTML = "<p style='color: var(--text-muted);'>Loading photos...</p>";
+
+      currentFiles = await fetchGitHubFolder(folderId);
+      grid.innerHTML = "";
+
+      if (currentFiles.length === 0) {
+        grid.innerHTML = "<p style='color: var(--text-muted); padding: 1.5rem 0;'>No photos found in this collection to use as a cover.</p>";
+        return;
+      }
+
+      currentFiles.forEach((file) => {
+        const card = document.createElement("div");
+        card.className = "photo-card";
+        card.innerHTML = `
+          <img src="${file.download_url}" alt="${file.name}" title="Click to set as folder cover" onclick="setFolderCover('${file.download_url}')">
+          <div style="position: absolute; bottom: 0; inset-x: 0; background: rgba(0,0,0,0.7); padding: 0.4rem; text-align: center;">
+            <button class="btn" style="padding: 0.3rem;" onclick="setFolderCover('${file.download_url}')">Set as Cover</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    window.setFolderCover = async function(imageUrl) {
+      const token = localStorage.getItem("gh_token");
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+
+      if (!token) {
+        alert("Please set your GitHub token in Admin Panel to save custom covers!");
+        return;
+      }
+
+      globalCovers[currentFolderId] = imageUrl;
+
+      const path = `uploads/covers.json`;
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+      const headers = { "Accept": "application/vnd.github+json", "Authorization": `token ${token.trim()}` };
+
+      let existingSha = null;
+      try {
+        const checkRes = await fetch(url, { headers });
+        if (checkRes.ok) {
+          const fileData = await checkRes.json();
+          existingSha = fileData.sha;
+        }
+      } catch (e) {}
+
+      const base64Content = btoa(JSON.stringify(globalCovers, null, 2));
+
+      try {
+        const bodyData = {
+          message: `Update folder cover for ${currentFolderId}`,
+          content: base64Content,
+          branch: branch
+        };
+        if (existingSha) bodyData.sha = existingSha;
+
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify(bodyData)
+        });
+
+        if (res.ok) {
+          alert("Folder cover successfully updated and saved to GitHub!");
+          goHome();
+        } else {
+          const err = await res.json();
+          alert("Failed to update cover: " + err.message);
+        }
+      } catch (err) {
+        alert("Error updating cover: " + err.message);
+      }
+    }
+
+    window.toggleReorderMode = function() {
+      isReorderMode = !isReorderMode;
+      const btn = document.getElementById("btnReorderAdmin");
+      btn.textContent = isReorderMode ? "💾 Save Order" : "↕ Rearrange";
+      if (!isReorderMode) {
+        saveOrderToGitHub();
+      }
+      renderPhotos();
     }
 
     async function renderPhotos() {
@@ -577,18 +685,85 @@
         const card = document.createElement("div");
         card.className = "photo-card";
         card.innerHTML = `
-          <img src="${file.download_url}" alt="${file.name}" onclick="openLightbox(${index})">
-          <button class="btn-delete-admin" style="${isAdmin ? 'display:block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
+          <img src="${file.download_url}" alt="${file.name}" onclick="${isReorderMode ? '' : `openLightbox(${index})`}">
+          <button class="btn-delete-admin" style="${isAdmin && !isReorderMode ? 'display:block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
+          
+          <div class="reorder-controls ${isReorderMode ? 'active' : ''}">
+            <button class="reorder-btn" onclick="movePhoto(${index}, -1)" ${index === 0 ? 'disabled style="opacity:0.4;"' : ''}>◀</button>
+            <span style="font-size:0.85rem; font-weight:bold; color:white;">${index + 1}</span>
+            <button class="reorder-btn" onclick="movePhoto(${index}, 1)" ${index === currentFiles.length - 1 ? 'disabled style="opacity:0.4;"' : ''}>▶</button>
+          </div>
         `;
         grid.appendChild(card);
       });
     }
 
-    // Lightbox & Navigation Logic
+    window.movePhoto = function(index, direction) {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= currentFiles.length) return;
+      
+      const temp = currentFiles[index];
+      currentFiles[index] = currentFiles[targetIndex];
+      currentFiles[targetIndex] = temp;
+      
+      renderPhotos();
+    }
+
+    async function saveOrderToGitHub() {
+      const token = localStorage.getItem("gh_token");
+      const owner = localStorage.getItem("gh_owner") || DEFAULT_OWNER;
+      const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
+      const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
+
+      if (!token) {
+        alert("Please set your GitHub token in Admin Panel to save custom sorting order!");
+        return;
+      }
+
+      const orderList = currentFiles.map(f => f.name);
+      const path = `uploads/${currentFolderId}/order.json`;
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+      const headers = { "Accept": "application/vnd.github+json", "Authorization": `token ${token.trim()}` };
+
+      let existingSha = null;
+      try {
+        const checkRes = await fetch(url, { headers });
+        if (checkRes.ok) {
+          const fileData = await checkRes.json();
+          existingSha = fileData.sha;
+        }
+      } catch (e) {}
+
+      const base64Content = btoa(JSON.stringify(orderList, null, 2));
+
+      try {
+        const bodyData = {
+          message: `Update display order for ${currentFolderId}`,
+          content: base64Content,
+          branch: branch
+        };
+        if (existingSha) bodyData.sha = existingSha;
+
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify(bodyData)
+        });
+
+        if (res.ok) {
+          alert("New photo order successfully saved and pushed to GitHub!");
+        } else {
+          const err = await res.json();
+          alert("Failed to save order: " + err.message);
+        }
+      } catch (err) {
+        alert("Error saving order: " + err.message);
+      }
+    }
+
     window.openLightbox = function(index) {
       currentIndex = index;
-      const modal = document.getElementById("lightboxModal");
-      modal.style.display = "flex";
+      document.getElementById("lightboxModal").style.display = "flex";
       loadCurrentImage();
     }
 
@@ -601,9 +776,7 @@
       const img = document.getElementById("lightboxImg");
       const downloadBtn = document.getElementById("lightboxDownloadBtn");
 
-      currentScale = 1;
-      panX = 0;
-      panY = 0;
+      currentScale = 1; panX = 0; panY = 0;
       updateImageTransform();
 
       img.src = file.download_url;
@@ -628,25 +801,21 @@
       img.style.transform = `translate(${panX}px, ${panY}px) scale(${currentScale})`;
     }
 
-    // Gestures Setup (Scroll zoom, pinch zoom, drag pan, and swipe navigation)
     function setupLightboxGestures() {
       const img = document.getElementById("lightboxImg");
       const container = document.getElementById("lightboxContainer");
 
-      // Mouse Wheel Zoom
       container.addEventListener("wheel", (e) => {
         e.preventDefault();
         const zoomIntensity = 0.15;
-        if (e.deltaY < 0) {
-          currentScale = Math.min(currentScale + zoomIntensity, 4);
-        } else {
+        if (e.deltaY < 0) currentScale = Math.min(currentScale + zoomIntensity, 4);
+        else {
           currentScale = Math.max(currentScale - zoomIntensity, 1);
           if (currentScale === 1) { panX = 0; panY = 0; }
         }
         updateImageTransform();
       }, { passive: false });
 
-      // Mouse Drag / Touch Pan & Swipe Detection
       let touchStartX = 0;
       let touchEndX = 0;
 
@@ -672,45 +841,9 @@
         if (!isDragging) return;
         isDragging = false;
         touchEndX = e.clientX;
-        
-        // If not zoomed, check for horizontal swipe to change image
         if (currentScale === 1) {
-          const swipeThreshold = 50;
-          if (touchStartX - touchEndX > swipeThreshold) {
-            nextImage();
-          } else if (touchEndX - touchStartX > swipeThreshold) {
-            prevImage();
-          }
-        }
-      });
-
-      // Mobile Pinch-to-Zoom support
-      container.addEventListener("touchstart", (e) => {
-        if (e.touches.length === 2) {
-          initialPinchDistance = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
-        }
-      }, { passive: true });
-
-      container.addEventListener("touchmove", (e) => {
-        if (e.touches.length === 2 && initialPinchDistance) {
-          const currentDistance = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
-          const factor = currentDistance / initialPinchDistance;
-          currentScale = Math.min(Math.max(currentScale * factor, 1), 4);
-          initialPinchDistance = currentDistance;
-          if (currentScale === 1) { panX = 0; panY = 0; }
-          updateImageTransform();
-        }
-      }, { passive: true });
-
-      container.addEventListener("touchend", (e) => {
-        if (e.touches.length < 2) {
-          initialPinchDistance = null;
+          if (touchStartX - touchEndX > 50) nextImage();
+          else if (touchEndX - touchStartX > 50) prevImage();
         }
       });
     }
@@ -735,17 +868,11 @@
         return;
       }
 
-      const fileInput = document.getElementById("fileInput");
-      const files = fileInput.files;
-      
-      if (files.length === 0) {
-        alert("Please select at least one image file.");
-        return;
-      }
+      const files = document.getElementById("fileInput").files;
+      if (files.length === 0) { alert("Please select at least one image file."); return; }
 
       const btn = document.getElementById("btnSubmitUpload");
       btn.disabled = true;
-
       let successCount = 0;
 
       for (let i = 0; i < files.length; i++) {
@@ -760,34 +887,18 @@
 
           const res = await fetch(url, {
             method: "PUT",
-            headers: {
-              "Accept": "application/vnd.github+json",
-              "Authorization": `token ${token.trim()}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              message: `Add ${filename} via Admin Panel`,
-              content: base64,
-              branch: branch
-            })
+            headers: { "Accept": "application/vnd.github+json", "Authorization": `token ${token.trim()}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ message: `Add ${filename} via Admin Panel`, content: base64, branch: branch })
           });
 
-          if (res.ok) {
-            successCount++;
-          } else {
-            const err = await res.json();
-            console.error(`Failed to upload ${file.name}:`, err.message);
-          }
-        } catch (err) {
-          console.error(`Error uploading ${file.name}:`, err.message);
-        }
+          if (res.ok) successCount++;
+        } catch (err) {}
       }
 
       btn.innerText = "Upload & Push";
       btn.disabled = false;
       document.getElementById("addModal").style.display = "none";
-      
-      alert(`Successfully uploaded ${successCount} of ${files.length} photos to GitHub!`);
+      alert(`Successfully uploaded ${successCount} of ${files.length} photos!`);
       await renderPhotos();
     }
 
@@ -797,27 +908,15 @@
       const repo = localStorage.getItem("gh_repo") || DEFAULT_REPO;
       const branch = localStorage.getItem("gh_branch") || DEFAULT_BRANCH;
 
-      if (!token) {
-        alert("Unauthorized. Set your token in Admin Panel.");
-        return;
-      }
-
+      if (!token) { alert("Unauthorized. Set your token in Admin Panel."); return; }
       if (!confirm("Are you sure you want to permanently delete this photo from GitHub?")) return;
 
       try {
         const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
         const res = await fetch(url, {
           method: "DELETE",
-          headers: {
-            "Accept": "application/vnd.github+json",
-            "Authorization": `token ${token.trim()}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: `Delete ${path} via Admin Panel`,
-            sha: sha,
-            branch: branch
-          })
+          headers: { "Accept": "application/vnd.github+json", "Authorization": `token ${token.trim()}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ message: `Delete ${path} via Admin Panel`, sha: sha, branch: branch })
         });
 
         if (res.ok) {
