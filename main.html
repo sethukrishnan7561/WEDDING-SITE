@@ -107,16 +107,30 @@
       overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
       text-align: center; position: relative;
     }
-    .cover-container { width: 100%; height: 200px; background-color: #1f2430; position: relative; }
+    
+    /* Slightly taller cover container (increased height) */
+    .cover-container { width: 100%; height: 260px; background-color: #1f2430; position: relative; cursor: pointer; }
     .folder-cover-preview { width: 100%; height: 100%; object-fit: cover; }
-    .card-content { padding: 1.1rem 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
-    .album-details h3 { font-size: 1.15rem; color: var(--text); font-family: "Georgia", serif; }
+    
+    .card-content { padding: 1.2rem 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
 
-    .btn {
-      background: var(--primary); color: #0f1115; padding: 0.55rem 0.75rem;
-      border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; width: 100%;
+    /* Folder title button styled like the header font */
+    .btn-folder-title {
+      background: var(--primary);
+      color: #0f1115;
+      border: none;
+      width: 100%;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-family: 'Great Vibes', cursive;
+      font-size: 2rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease;
     }
-    .btn:hover { background: var(--primary-hover); }
+    .btn-folder-title:hover {
+      background: var(--primary-hover);
+    }
 
     .btn-cover-admin {
       display: none; background: #3b82f6; color: white; padding: 0.45rem 0.75rem;
@@ -132,13 +146,14 @@
     .folder-heading { font-family: "Georgia", serif; font-size: 2rem; color: #ffffff; }
 
     .action-bar { display: flex; gap: 0.75rem; align-items: center; }
-    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); width: auto; padding: 0.5rem 1rem; }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); width: auto; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
-    .btn-upload-admin, .btn-reorder-admin { display: none; width: auto; padding: 0.5rem 1rem; }
-    .btn-reorder-admin { background: #3b82f6; color: white; border: none; }
+    .btn-upload-admin, .btn-reorder-admin { display: none; width: auto; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-reorder-admin { background: #3b82f6; color: white; }
     .btn-reorder-admin:hover { background: #2563eb; }
+    .btn-upload-admin { background: var(--primary); color: #0f1115; }
+    .btn-upload-admin:hover { background: var(--primary-hover); }
 
-    /* Fixed Auto-Fit Photo Grid Configuration */
     .photo-grid { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
@@ -155,7 +170,7 @@
       border-radius: 10px;
       overflow: hidden; 
       width: 100%;
-      height: 280px; /* Fixed display height so horizontal and vertical photos fit evenly */
+      height: 280px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -163,7 +178,7 @@
     .photo-card img { 
       max-width: 100%; 
       max-height: 100%; 
-      object-fit: contain; /* Ensures entire photo is shown without cropping */
+      object-fit: contain; 
       cursor: pointer; 
       display: block; 
       transition: transform 0.3s ease;
@@ -292,7 +307,7 @@
       <input type="file" id="fileInput" accept="image/*" multiple>
       <div class="modal-actions">
         <button class="btn btn-secondary" id="closeUploadModal">Cancel</button>
-        <button class="btn" id="btnSubmitUpload">Upload & Push</button>
+        <button class="btn btn-upload-admin" id="btnSubmitUpload" style="display:inline-block; width:auto;">Upload & Push</button>
       </div>
     </div>
   </div>
@@ -311,7 +326,7 @@
       <input type="password" id="ghToken" placeholder="ghp_...">
       <div class="modal-actions">
         <button class="btn btn-secondary" id="closeAdminModal">Cancel</button>
-        <button class="btn" id="saveAdminBtn">Save & Connect</button>
+        <button class="btn btn-upload-admin" id="saveAdminBtn" style="display:inline-block; width:auto;">Save & Connect</button>
       </div>
     </div>
   </div>
@@ -546,12 +561,11 @@
         const card = document.createElement("div");
         card.className = "album-card";
         card.innerHTML = `
-          <div class="cover-container">
+          <div class="cover-container" onclick="openFolder('${f.id}', '${f.title}')">
             <img src="${coverSrc}" class="folder-cover-preview" alt="${f.title}">
           </div>
           <div class="card-content">
-            <div class="album-details"><h3>${f.title}</h3></div>
-            <button class="btn" onclick="openFolder('${f.id}', '${f.title}')">View photos</button>
+            <button class="btn-folder-title" onclick="openFolder('${f.id}', '${f.title}')">${f.title}</button>
             <button class="btn-cover-admin" style="${isAdmin ? 'display:block;' : 'display:none;'}" onclick="openFolderCoverSelector('${f.id}', '${f.title}')">🖼 Change Cover</button>
           </div>
         `;
@@ -600,7 +614,7 @@
         card.innerHTML = `
           <img src="${file.download_url}" alt="${file.name}" title="Click to set as folder cover" onclick="setFolderCover('${file.download_url}')">
           <div style="position: absolute; bottom: 0; inset-x: 0; background: rgba(0,0,0,0.8); padding: 0.4rem; text-align: center; z-index: 15;">
-            <button class="btn" style="padding: 0.3rem;" onclick="setFolderCover('${file.download_url}')">Set as Cover</button>
+            <button class="btn-folder-title" style="font-size: 1.2rem; padding: 0.3rem;" onclick="setFolderCover('${file.download_url}')">Set as Cover</button>
           </div>
         `;
         grid.appendChild(card);
