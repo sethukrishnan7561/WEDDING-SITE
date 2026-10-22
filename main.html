@@ -172,19 +172,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: border-color 0.2s, transform 0.2s;
     }
-    .photo-card.draggable {
-      cursor: grab;
-    }
-    .photo-card.draggable:active {
-      cursor: grabbing;
-    }
-    .photo-card.drag-over {
-      border: 2px dashed var(--primary);
-      transform: scale(1.02);
-    }
-
     .photo-card img { 
       max-width: 100%; 
       max-height: 100%; 
@@ -204,14 +192,25 @@
     }
     .btn-delete-admin:hover { background: rgba(239, 68, 68, 1); }
 
-    .reorder-badge {
+    /* Number Order Input Overlay */
+    .order-input-container {
       display: none;
       position: absolute; top: 10px; left: 10px;
-      background: rgba(0, 0, 0, 0.8); color: var(--primary);
-      padding: 0.3rem 0.6rem; border-radius: 6px; font-weight: bold; font-size: 0.9rem;
-      border: 1px solid var(--border); z-index: 15;
+      z-index: 15;
     }
-    .reorder-badge.active { display: block; }
+    .order-input-container.active { display: block; }
+    .order-input {
+      width: 60px;
+      padding: 0.3rem;
+      background: rgba(15, 17, 21, 0.9);
+      border: 2px solid var(--primary);
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+    }
 
     .modal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
@@ -379,7 +378,6 @@
     let currentIndex = 0;
     let isReorderMode = false;
     let globalCovers = {};
-    let draggedIndex = null;
 
     let currentScale = 1;
     let panX = 0;
@@ -681,13 +679,27 @@
     }
 
     window.toggleReorderMode = function() {
-      isReorderMode = !isReorderMode;
-      const btn = document.getElementById("btnReorderAdmin");
-      btn.textContent = isReorderMode ? "💾 Save Order" : "↕ Rearrange";
       if (!isReorderMode) {
+        isReorderMode = true;
+        document.getElementById("btnReorderAdmin").textContent = "💾 Save Order";
+        renderPhotos();
+      } else {
+        // Collect order from inputs, sort array numerically, and save
+        const inputs = document.querySelectorAll('.order-input');
+        let orderPairs = [];
+        inputs.forEach(input => {
+          const idx = parseInt(input.dataset.index);
+          const val = parseInt(input.value) || 999;
+          orderPairs.push({ file: currentFiles[idx], order: val });
+        });
+
+        orderPairs.sort((a, b) => a.order - b.order);
+        currentFiles = orderPairs.map(p => p.file);
+
+        isReorderMode = false;
+        document.getElementById("btnReorderAdmin").textContent = "↕ Rearrange";
         saveOrderToGitHub();
       }
-      renderPhotos();
     }
 
     async function renderPhotos() {
@@ -695,7 +707,9 @@
       if (!grid) return;
       grid.innerHTML = "<p style='color: var(--text-muted);'>Loading memories...</p>";
 
-      currentFiles = await fetchGitHubFolder(currentFolderId);
+      if (!isReorderMode) {
+        currentFiles = await fetchGitHubFolder(currentFolderId);
+      }
       grid.innerHTML = "";
 
       if (currentFiles.length === 0) {
@@ -705,40 +719,11 @@
 
       currentFiles.forEach((file, index) => {
         const card = document.createElement("div");
-        card.className = `photo-card ${isReorderMode ? 'draggable' : ''}`;
-        if (isReorderMode) {
-          card.setAttribute("draggable", "true");
-          card.dataset.index = index;
-          
-          card.addEventListener("dragstart", (e) => {
-            draggedIndex = index;
-            e.dataTransfer.effectAllowed = "move";
-          });
-          
-          card.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = "move";
-            card.classList.add("drag-over");
-          });
-          
-          card.addEventListener("dragleave", () => {
-            card.classList.remove("drag-over");
-          });
-          
-          card.addEventListener("drop", (e) => {
-            e.preventDefault();
-            card.classList.remove("drag-over");
-            const targetIndex = index;
-            if (draggedIndex !== null && draggedIndex !== targetIndex) {
-              const movedItem = currentFiles.splice(draggedIndex, 1)[0];
-              currentFiles.splice(targetIndex, 0, movedItem);
-              renderPhotos();
-            }
-          });
-        }
-
+        card.className = "photo-card";
         card.innerHTML = `
-          <div class="reorder-badge ${isReorderMode ? 'active' : ''}">${index + 1}</div>
+          <div class="order-input-container ${isReorderMode ? 'active' : ''}">
+            <input type="number" class="order-input" data-index="${index}" value="${index + 1}" min="1">
+          </div>
           <img src="${file.download_url}" alt="${file.name}" onclick="${isReorderMode ? '' : `openLightbox(${index})`}">
           <button class="btn-delete-admin" style="${isAdmin && !isReorderMode ? 'display:block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
         `;
@@ -754,6 +739,7 @@
 
       if (!token) {
         alert("Please set your GitHub token in Admin Panel to save custom sorting order!");
+        renderPhotos();
         return;
       }
 
@@ -796,6 +782,7 @@
       } catch (err) {
         alert("Error saving order: " + err.message);
       }
+      renderPhotos();
     }
 
     window.openLightbox = function(index) {
