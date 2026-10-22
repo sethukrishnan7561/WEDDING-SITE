@@ -108,13 +108,11 @@
       text-align: center; position: relative;
     }
     
-    /* Slightly taller cover container (increased height) */
-    .cover-container { width: 100%; height: 320px; background-color: #1f2430; position: relative; cursor: pointer; }
+    .cover-container { width: 100%; height: 260px; background-color: #1f2430; position: relative; cursor: pointer; }
     .folder-cover-preview { width: 100%; height: 100%; object-fit: cover; }
     
     .card-content { padding: 1.2rem 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
 
-    /* Folder title button styled like the header font */
     .btn-folder-title {
       background: var(--primary);
       color: #0f1115;
@@ -174,7 +172,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: border-color 0.2s, transform 0.2s;
     }
+    .photo-card.draggable {
+      cursor: grab;
+    }
+    .photo-card.draggable:active {
+      cursor: grabbing;
+    }
+    .photo-card.drag-over {
+      border: 2px dashed var(--primary);
+      transform: scale(1.02);
+    }
+
     .photo-card img { 
       max-width: 100%; 
       max-height: 100%; 
@@ -194,20 +204,14 @@
     }
     .btn-delete-admin:hover { background: rgba(239, 68, 68, 1); }
 
-    .reorder-controls {
+    .reorder-badge {
       display: none;
-      position: absolute; inset: 0;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(3px);
-      justify-content: center; align-items: center; gap: 0.5rem;
-      z-index: 20;
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(0, 0, 0, 0.8); color: var(--primary);
+      padding: 0.3rem 0.6rem; border-radius: 6px; font-weight: bold; font-size: 0.9rem;
+      border: 1px solid var(--border); z-index: 15;
     }
-    .reorder-controls.active { display: flex; }
-    .reorder-btn {
-      background: var(--primary); color: #0f1115; border: none;
-      padding: 0.4rem 0.8rem; font-weight: bold; border-radius: 4px; cursor: pointer;
-    }
-    .reorder-btn:hover { background: var(--primary-hover); }
+    .reorder-badge.active { display: block; }
 
     .modal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
@@ -375,6 +379,7 @@
     let currentIndex = 0;
     let isReorderMode = false;
     let globalCovers = {};
+    let draggedIndex = null;
 
     let currentScale = 1;
     let panX = 0;
@@ -700,30 +705,45 @@
 
       currentFiles.forEach((file, index) => {
         const card = document.createElement("div");
-        card.className = "photo-card";
+        card.className = `photo-card ${isReorderMode ? 'draggable' : ''}`;
+        if (isReorderMode) {
+          card.setAttribute("draggable", "true");
+          card.dataset.index = index;
+          
+          card.addEventListener("dragstart", (e) => {
+            draggedIndex = index;
+            e.dataTransfer.effectAllowed = "move";
+          });
+          
+          card.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            card.classList.add("drag-over");
+          });
+          
+          card.addEventListener("dragleave", () => {
+            card.classList.remove("drag-over");
+          });
+          
+          card.addEventListener("drop", (e) => {
+            e.preventDefault();
+            card.classList.remove("drag-over");
+            const targetIndex = index;
+            if (draggedIndex !== null && draggedIndex !== targetIndex) {
+              const movedItem = currentFiles.splice(draggedIndex, 1)[0];
+              currentFiles.splice(targetIndex, 0, movedItem);
+              renderPhotos();
+            }
+          });
+        }
+
         card.innerHTML = `
+          <div class="reorder-badge ${isReorderMode ? 'active' : ''}">${index + 1}</div>
           <img src="${file.download_url}" alt="${file.name}" onclick="${isReorderMode ? '' : `openLightbox(${index})`}">
           <button class="btn-delete-admin" style="${isAdmin && !isReorderMode ? 'display:block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
-          
-          <div class="reorder-controls ${isReorderMode ? 'active' : ''}">
-            <button class="reorder-btn" onclick="movePhoto(${index}, -1)" ${index === 0 ? 'disabled style="opacity:0.4;"' : ''}>◀</button>
-            <span style="font-size:0.85rem; font-weight:bold; color:white;">${index + 1}</span>
-            <button class="reorder-btn" onclick="movePhoto(${index}, 1)" ${index === currentFiles.length - 1 ? 'disabled style="opacity:0.4;"' : ''}>▶</button>
-          </div>
         `;
         grid.appendChild(card);
       });
-    }
-
-    window.movePhoto = function(index, direction) {
-      const targetIndex = index + direction;
-      if (targetIndex < 0 || targetIndex >= currentFiles.length) return;
-      
-      const temp = currentFiles[index];
-      currentFiles[index] = currentFiles[targetIndex];
-      currentFiles[targetIndex] = temp;
-      
-      renderPhotos();
     }
 
     async function saveOrderToGitHub() {
