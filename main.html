@@ -722,7 +722,7 @@
         card.className = "photo-card";
         card.innerHTML = `
           <div class="order-input-container ${isReorderMode ? 'active' : ''}">
-            <input type="number" class="order-input" data-index="${index}" value="${index + 1}" min="1">
+            <input type="number" class="order-input" data-index="${index}" value="" min="1">
           </div>
           <img src="${file.download_url}" alt="${file.name}" onclick="${isReorderMode ? '' : `openLightbox(${index})`}">
           <button class="btn-delete-admin" style="${isAdmin && !isReorderMode ? 'display:block;' : 'display:none;'}" onclick="deletePhotoFromGitHub('${file.path}', '${file.sha}')">🗑</button>
