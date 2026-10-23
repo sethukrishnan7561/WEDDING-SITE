@@ -66,17 +66,55 @@
 
     .container { max-width: 1400px; margin: 2.5rem auto; padding: 0 1.5rem; flex-grow: 1; width: 100%; }
 
-    /* Banner Slideshow */
+    /* Horizontal Scrolling Banner Carousel (Fixed 4:3 Aspect Ratio) */
     .banner-section {
-      position: relative; width: 100%; height: 560px; border-radius: 12px;
-      overflow: hidden; margin-bottom: 2.5rem; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      max-height: 750px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
       border: 1px solid var(--border);
+      background-color: #000;
+    }
+    .banner-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s ease-in-out;
     }
     .banner-slide {
-      position: absolute; inset: 0; background-size: cover; background-position: center;
-      opacity: 0; transition: opacity 1.2s ease-in-out; filter: brightness(0.85);
+      min-width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      filter: brightness(0.85);
     }
-    .banner-slide.active { opacity: 1; }
+
+    /* Banner Navigation Indicators */
+    .banner-dots {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+    .banner-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .banner-dot.active {
+      background: var(--primary);
+    }
 
     .video-section {
       width: 100%;
@@ -270,11 +308,20 @@
   <main class="container">
     <!-- Home / Folder Grid View -->
     <div id="home-view" class="view-section" style="display: block;">
+      <!-- Horizontal Scrolling Banner Carousel (Fixed 4:3 Aspect Ratio) -->
       <div class="banner-section">
-        <div class="banner-slide active" style="background-image: url('family1.jpg');"></div>
-        <div class="banner-slide" style="background-image: url('cover.jpg');"></div>
-        <div class="banner-slide" style="background-image: url('family2.jpg');"></div>
-        <div class="banner-slide" style="background-image: url('family3.jpg');"></div>
+        <div class="banner-track" id="bannerTrack">
+          <div class="banner-slide" style="background-image: url('family1.jpg');"></div>
+          <div class="banner-slide" style="background-image: url('cover.jpg');"></div>
+          <div class="banner-slide" style="background-image: url('family2.jpg');"></div>
+          <div class="banner-slide" style="background-image: url('family3.jpg');"></div>
+        </div>
+        <div class="banner-dots" id="bannerDots">
+          <span class="banner-dot active" onclick="currentSlide(0)"></span>
+          <span class="banner-dot" onclick="currentSlide(1)"></span>
+          <span class="banner-dot" onclick="currentSlide(2)"></span>
+          <span class="banner-dot" onclick="currentSlide(3)"></span>
+        </div>
       </div>
       
       <div class="video-section">
@@ -356,22 +403,40 @@
     const DEFAULT_BRANCH = "main";
     const SECRET_ADMIN_PASS = "admin2026";
 
-    const slides = document.querySelectorAll('.banner-slide');
+    // Horizontal Scrolling Banner Carousel Logic
+    const track = document.getElementById('bannerTrack');
+    const bannerSlides = document.querySelectorAll('.banner-slide');
+    const dots = document.querySelectorAll('.banner-dot');
     let curSlide = 0;
-    if (slides.length > 0) {
-      setInterval(() => {
-        slides[curSlide].classList.remove('active');
-        curSlide = (curSlide + 1) % slides.length;
-        slides[curSlide].classList.add('active');
-      }, 4500);
+    const totalSlides = bannerSlides.length;
+
+    function updateCarousel() {
+      if (track) {
+        track.style.transform = `translateX(-${curSlide * 100}%)`;
+        dots.forEach((dot, index) => {
+          dot.classList.toggle('active', index === curSlide);
+        });
+      }
+    }
+
+    function nextSlide() {
+      curSlide = (curSlide + 1) % totalSlides;
+      updateCarousel();
+    }
+
+    window.currentSlide = function(index) {
+      curSlide = index;
+      updateCarousel();
+    }
+
+    if (totalSlides > 0) {
+      setInterval(nextSlide, 4500);
     }
 
     const folders = [
       { id: "save-the-date", title: "Save the date", defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
       { id: "engagement", title: "Engagement", defaultCover: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" },
-      { id: "wedding", title: "Wedding", defaultCover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" },
-      { id: "groom", title: "Groom", defaultCover: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80" },
-      { id: "bride", title: "Bride", defaultCover: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80" }
+      { id: "wedding", title: "Wedding", defaultCover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" }
     ];
 
     let currentFolderId = "";
