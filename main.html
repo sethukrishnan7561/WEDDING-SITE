@@ -239,7 +239,7 @@
     }
     #lightboxImg {
       max-width: 85vw; max-height: 80vh; object-fit: contain;
-      transition: transform 0.1s ease-out; cursor: grab; touch-action: none;
+      transition: transform 0.05s ease-out; cursor: grab; touch-action: none;
     }
     #lightboxImg:active { cursor: grabbing; }
     .lightbox-arrow {
@@ -382,10 +382,12 @@
     let currentScale = 1;
     let panX = 0;
     let panY = 0;
+    let activePointers = new Map();
+    let initialPinchDistance = null;
+    let initialPinchScale = 1;
     let isDragging = false;
     let startX = 0;
     let startY = 0;
-    let initialPinchDistance = null;
 
     function checkAdminAccess() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -684,7 +686,6 @@
         document.getElementById("btnReorderAdmin").textContent = "💾 Save Order";
         renderPhotos();
       } else {
-        // Collect order from inputs, sort array numerically, and save
         const inputs = document.querySelectorAll('.order-input');
         let orderPairs = [];
         inputs.forEach(input => {
@@ -801,6 +802,7 @@
       const downloadBtn = document.getElementById("lightboxDownloadBtn");
 
       currentScale = 1; panX = 0; panY = 0;
+      activePointers.clear();
       updateImageTransform();
 
       img.src = file.download_url;
@@ -829,10 +831,11 @@
       const img = document.getElementById("lightboxImg");
       const container = document.getElementById("lightboxContainer");
 
+      // Desktop Mouse Wheel Zoom
       container.addEventListener("wheel", (e) => {
         e.preventDefault();
         const zoomIntensity = 0.15;
-        if (e.deltaY < 0) currentScale = Math.min(currentScale + zoomIntensity, 4);
+        if (e.deltaY < 0) currentScale = Math.min(currentScale + zoomIntensity, 5);
         else {
           currentScale = Math.max(currentScale - zoomIntensity, 1);
           if (currentScale === 1) { panX = 0; panY = 0; }
@@ -843,33 +846,77 @@
       let touchStartX = 0;
       let touchEndX = 0;
 
+      // Touch/Pointer Events for Mobile Pinch-to-Zoom and Pan
       container.addEventListener("pointerdown", (e) => {
         if (e.target.tagName !== "IMG") return;
-        isDragging = true;
-        startX = e.clientX - panX;
-        startY = e.clientY - panY;
+        activePointers.set(e.pointerId, e);
         img.setPointerCapture(e.pointerId);
-        touchStartX = e.clientX;
+
+        if (activePointers.size === 1) {
+          isDragging = true;
+          startX = e.clientX - panX;
+          startY = e.clientY - panY;
+          touchStartX = e.clientX;
+        } else if (activePointers.size === 2) {
+          // Two fingers detected -> start pinch-to-zoom
+          isDragging = false;
+          const pointers = Array.from(activePointers.values());
+          initialPinchDistance = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
+          initialPinchScale = currentScale;
+        }
       });
 
       container.addEventListener("pointermove", (e) => {
-        if (!isDragging) return;
-        if (currentScale > 1) {
-          panX = e.clientX - startX;
-          panY = e.clientY - startY;
+        if (!activePointers.has(e.pointerId)) return;
+        activePointers.set(e.pointerId, e);
+
+        if (activePointers.size === 2 && initialPinchDistance !== null) {
+          // Pinch Zooming
+          const pointers = Array.from(activePointers.values());
+          const currentDistance = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
+          const scaleFactor = currentDistance / initialPinchDistance;
+          currentScale = Math.min(Math.max(initialPinchScale * scaleFactor, 1), 5);
+          if (currentScale === 1) { panX = 0; panY = 0; }
           updateImageTransform();
+        } else if (activePointers.size === 1 && isDragging) {
+          // Single finger panning (when zoomed in)
+          if (currentScale > 1) {
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            updateImageTransform();
+          }
         }
       });
 
-      container.addEventListener("pointerup", (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        touchEndX = e.clientX;
-        if (currentScale === 1) {
-          if (touchStartX - touchEndX > 50) nextImage();
-          else if (touchEndX - touchStartX > 50) prevImage();
+      const handlePointerUp = (e) => {
+        if (!activePointers.has(e.pointerId)) return;
+        activePointers.delete(e.pointerId);
+
+        if (activePointers.size < 2) {
+          initialPinchDistance = null;
         }
-      });
+
+        if (activePointers.size === 1) {
+          // Switch back to single finger drag if one finger remains
+          const remainingPointer = Array.from(activePointers.values())[0];
+          isDragging = true;
+          startX = remainingPointer.clientX - panX;
+          startY = remainingPointer.clientY - panY;
+        } else if (activePointers.size === 0) {
+          if (isDragging) {
+            isDragging = false;
+            touchEndX = e.clientX;
+            // Swipe detection for next/prev image when not zoomed in
+            if (currentScale === 1) {
+              if (touchStartX - touchEndX > 50) nextImage();
+              else if (touchEndX - touchStartX > 50) prevImage();
+            }
+          }
+        }
+      };
+
+      container.addEventListener("pointerup", handlePointerUp);
+      container.addEventListener("pointercancel", handlePointerUp);
     }
 
     function fileToBase64(file) {
