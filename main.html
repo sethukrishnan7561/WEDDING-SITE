@@ -287,6 +287,11 @@
       </div>
 
       <div class="album-grid" id="folder-grid"></div>
+
+      <!-- Centered Engagement Highlights Text Heading -->
+      <div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem;">
+        <h2 style="font-family: 'Great Vibes', cursive; font-size: 3rem; color: var(--primary);">Engagement Highlights</h2>
+      </div>
     </div>
 
     <!-- Gallery View -->
@@ -831,7 +836,6 @@
       const img = document.getElementById("lightboxImg");
       const container = document.getElementById("lightboxContainer");
 
-      // Desktop Mouse Wheel Zoom
       container.addEventListener("wheel", (e) => {
         e.preventDefault();
         const zoomIntensity = 0.15;
@@ -846,7 +850,6 @@
       let touchStartX = 0;
       let touchEndX = 0;
 
-      // Touch/Pointer Events for Mobile Pinch-to-Zoom and Pan
       container.addEventListener("pointerdown", (e) => {
         if (e.target.tagName !== "IMG") return;
         activePointers.set(e.pointerId, e);
@@ -858,7 +861,6 @@
           startY = e.clientY - panY;
           touchStartX = e.clientX;
         } else if (activePointers.size === 2) {
-          // Two fingers detected -> start pinch-to-zoom
           isDragging = false;
           const pointers = Array.from(activePointers.values());
           initialPinchDistance = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
@@ -871,7 +873,6 @@
         activePointers.set(e.pointerId, e);
 
         if (activePointers.size === 2 && initialPinchDistance !== null) {
-          // Pinch Zooming
           const pointers = Array.from(activePointers.values());
           const currentDistance = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
           const scaleFactor = currentDistance / initialPinchDistance;
@@ -879,7 +880,6 @@
           if (currentScale === 1) { panX = 0; panY = 0; }
           updateImageTransform();
         } else if (activePointers.size === 1 && isDragging) {
-          // Single finger panning (when zoomed in)
           if (currentScale > 1) {
             panX = e.clientX - startX;
             panY = e.clientY - startY;
@@ -897,7 +897,6 @@
         }
 
         if (activePointers.size === 1) {
-          // Switch back to single finger drag if one finger remains
           const remainingPointer = Array.from(activePointers.values())[0];
           isDragging = true;
           startX = remainingPointer.clientX - panX;
@@ -906,7 +905,6 @@
           if (isDragging) {
             isDragging = false;
             touchEndX = e.clientX;
-            // Swipe detection for next/prev image when not zoomed in
             if (currentScale === 1) {
               if (touchStartX - touchEndX > 50) nextImage();
               else if (touchEndX - touchStartX > 50) prevImage();
