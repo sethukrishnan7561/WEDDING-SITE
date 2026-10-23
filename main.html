@@ -98,37 +98,6 @@
       .video-section { height: 300px; }
     }
 
-    /* Dual Video Grid Layout (4:3 aspect ratio per video wrapper) */
-    .dual-video-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-      width: 100%;
-      margin-top: 1.5rem;
-    }
-    .video-card-43 {
-      position: relative;
-      width: 100%;
-      padding-top: 75%; /* 4:3 Aspect Ratio (3 / 4 = 75%) */
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-      border: 1px solid var(--border);
-      background: var(--card-bg);
-    }
-    .video-card-43 iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-    }
-    @media (max-width: 768px) {
-      .dual-video-grid { grid-template-columns: 1fr; }
-    }
-
     .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; width: 100%; margin: 0 auto; }
     @media (max-width: 1024px) { .album-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 640px) { .album-grid { grid-template-columns: 1fr; } }
@@ -318,31 +287,6 @@
       </div>
 
       <div class="album-grid" id="folder-grid"></div>
-
-      <!-- Centered Engagement Highlights Text Heading -->
-      <div style="text-align: center; margin-top: 3.5rem; margin-bottom: 1.5rem;">
-        <h2 style="font-family: 'Great Vibes', cursive; font-size: 3rem; color: var(--primary);">Engagement Highlights</h2>
-      </div>
-
-      <!-- Two YouTube Video Players in a Horizontal 4:3 Grid -->
-      <div class="dual-video-grid">
-        <div class="video-card-43">
-          <iframe src="https://www.youtube.com/embed/gBmXWUkYXc0" 
-                  title="Engagement Video 1" 
-                  frameborder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowfullscreen>
-          </iframe>
-        </div>
-        <div class="video-card-43">
-          <iframe src="https://www.youtube.com/embed/gBmXWUkYXc0" 
-                  title="Engagement Video 2" 
-                  frameborder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowfullscreen>
-          </iframe>
-        </div>
-      </div>
     </div>
 
     <!-- Gallery View -->
@@ -425,7 +369,9 @@
     const folders = [
       { id: "save-the-date", title: "Save the date", defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
       { id: "engagement", title: "Engagement", defaultCover: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" },
-      { id: "wedding", title: "Wedding", defaultCover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" }
+      { id: "wedding", title: "Wedding", defaultCover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" },
+      { id: "groom", title: "Groom", defaultCover: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80" },
+      { id: "bride", title: "Bride", defaultCover: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80" }
     ];
 
     let currentFolderId = "";
