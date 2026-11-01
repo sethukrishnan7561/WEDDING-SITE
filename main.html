@@ -448,6 +448,19 @@
     let startX = 0;
     let startY = 0;
 
+    // Helper to convert watch / short youtube URLs into embed URLs automatically
+    function getEmbedUrl(url) {
+      if (!url) return "";
+      if (url.includes("/embed/")) return url;
+      let videoId = "";
+      if (url.includes("youtu.be/")) {
+        videoId = url.split("youtu.be/")[1]?.split("?")[0];
+      } else if (url.includes("watch?v=")) {
+        videoId = url.split("watch?v=")[1]?.split("&")[0];
+      }
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+    }
+
     function checkAdminAccess() {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get("key") === SECRET_ADMIN_PASS) {
@@ -709,13 +722,15 @@
       const videoContainer = document.getElementById("highlights-video-container");
       const folderObj = folders.find(f => f.id === id);
       if (folderObj && folderObj.videos && folderObj.videos.length > 0) {
+        const embedUrl1 = getEmbedUrl(folderObj.videos[0]);
+        const embedUrl2 = getEmbedUrl(folderObj.videos[1]);
         videoContainer.innerHTML = `
           <div class="video-grid-1x2">
             <div class="video-section">
-              <iframe src="${folderObj.videos[0]}" title="YouTube video player 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+              <iframe src="${embedUrl1}" title="YouTube video player 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
             <div class="video-section">
-              <iframe src="${folderObj.videos[1]}" title="YouTube video player 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+              <iframe src="${embedUrl2}" title="YouTube video player 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
           </div>
         `;
