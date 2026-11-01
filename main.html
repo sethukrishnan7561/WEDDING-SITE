@@ -412,7 +412,10 @@
     <div class="modal-content" style="max-width: 840px; height: 520px; display: flex; flex-direction: column; padding: 1.5rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <h3 id="playerModalTitle" style="color: var(--primary); font-family: 'Great Vibes', cursive; font-size: 2rem;">Playing Video</h3>
-        <button class="btn btn-secondary" onclick="closeVideoPlayerModal()" style="padding: 0.3rem 0.8rem;">✕ Close</button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary" onclick="backToVideoStack()" style="padding: 0.3rem 0.8rem;">← Back</button>
+          <button class="btn btn-secondary" onclick="closeVideoPlayerModal()" style="padding: 0.3rem 0.8rem;">✕ Close</button>
+        </div>
       </div>
       <div style="flex-grow: 1; width: 100%; border-radius: 8px; overflow: hidden; background: #000;">
         <iframe id="modalVideoIframe" src="" style="width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
@@ -510,7 +513,11 @@
     let currentIndex = 0;
     let isReorderMode = false;
     let globalCovers = {};
-    let hiddenPhotosMap = {}; // { folderId: [filename1, filename2] }
+    let hiddenPhotosMap = {}; 
+
+    // Context for backing up to video list
+    let currentFolderVideoTitle = "";
+    let currentFolderVideosList = [];
 
     let currentScale = 1;
     let panX = 0;
@@ -522,7 +529,6 @@
     let startX = 0;
     let startY = 0;
 
-    // Helper to convert watch / short youtube URLs into embed URLs automatically
     function getEmbedUrl(url) {
       if (!url) return "";
       if (url.includes("/embed/")) return url;
@@ -639,7 +645,6 @@
       const headers = { "Accept": "application/vnd.github+json" };
       if (token) headers["Authorization"] = `token ${token}`;
 
-      // Fetch Covers
       try {
         const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/uploads/covers.json?ref=${branch}`, { headers });
         if (res.ok) {
@@ -652,7 +657,6 @@
         globalCovers = {};
       }
 
-      // Fetch Hidden Photos Configuration
       try {
         const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/uploads/hidden.json?ref=${branch}`, { headers });
         if (res.ok) {
@@ -773,7 +777,6 @@
         const card = document.createElement("div");
         card.className = "album-card";
         
-        // Add official YouTube logo icon badge overlay in bottom-right corner if folder has videos
         let youtubeBadgeHtml = "";
         if (f.videos && f.videos.length > 0) {
           const videosJson = JSON.stringify(f.videos).replace(/"/g, '&quot;');
@@ -812,6 +815,9 @@
     }
 
     window.openVideoStackModal = function(folderTitle, videosList) {
+      currentFolderVideoTitle = folderTitle;
+      currentFolderVideosList = videosList;
+
       document.getElementById("stackModalTitle").textContent = folderTitle;
       const listContainer = document.getElementById("videoStackListContent");
       listContainer.innerHTML = "";
@@ -835,11 +841,20 @@
     }
 
     window.playSelectedVideo = function(url, titleText) {
-      closeVideoStackModal();
+      document.getElementById("videoStackModal").style.display = "none";
       const embedUrl = getEmbedUrl(url);
       document.getElementById("playerModalTitle").textContent = titleText;
       document.getElementById("modalVideoIframe").src = embedUrl;
       document.getElementById("videoPlayerModal").style.display = "flex";
+    }
+
+    // Go back from video player modal to the video stack list
+    window.backToVideoStack = function() {
+      document.getElementById("modalVideoIframe").src = "";
+      document.getElementById("videoPlayerModal").style.display = "none";
+      if (currentFolderVideosList.length > 0) {
+        window.openVideoStackModal(currentFolderVideoTitle, currentFolderVideosList);
+      }
     }
 
     window.closeVideoPlayerModal = function() {
@@ -929,7 +944,6 @@
       }
       grid.innerHTML = "";
 
-      // Filter out hidden photos if NOT in admin mode
       let displayFiles = currentFiles;
       const hiddenList = hiddenPhotosMap[currentFolderId] || [];
       if (!isAdmin) {
@@ -942,15 +956,12 @@
       }
 
       currentFiles.forEach((file, index) => {
-        // If regular user and photo is hidden, skip rendering it entirely
         if (!isAdmin && hiddenList.includes(file.name)) return;
 
         const isHidden = hiddenList.includes(file.name);
         const card = document.createElement("div");
         card.className = `photo-card ${isHidden ? 'hidden-photo' : ''}`;
         
-        let lightboxIdx = displayFiles.findIndex(f => f.name === file.name);
-
         card.innerHTML = `
           <div class="order-input-container ${isReorderMode ? 'active' : ''}">
             <input type="number" class="order-input" data-index="${index}" value="" min="1">
@@ -1056,7 +1067,7 @@
 
     window.closeLightbox = function() {
       document.getElementById("lightboxModal").style.display = "none";
-      renderPhotos(); // Refresh grid layout in case admin status changed viewable items
+      renderPhotos(); 
     }
 
     function loadCurrentImage() {
@@ -1094,7 +1105,6 @@
       const img = document.getElementById("lightboxImg");
       const container = document.getElementById("lightboxContainer");
 
-      // Desktop Mouse Wheel Zoom
       container.addEventListener("wheel", (e) => {
         e.preventDefault();
         const zoomIntensity = 0.15;
@@ -1109,7 +1119,6 @@
       let touchStartX = 0;
       let touchEndX = 0;
 
-      // Touch/Pointer Events for Mobile Pinch-to-Zoom and Pan
       container.addEventListener("pointerdown", (e) => {
         if (e.target.tagName !== "IMG") return;
         activePointers.set(e.pointerId, e);
@@ -1121,7 +1130,6 @@
           startY = e.clientY - panY;
           touchStartX = e.clientX;
         } else if (activePointers.size === 2) {
-          // Two fingers detected -> start pinch-to-zoom
           isDragging = false;
           const pointers = Array.from(activePointers.values());
           initialPinchDistance = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
@@ -1134,7 +1142,6 @@
         activePointers.set(e.pointerId, e);
 
         if (activePointers.size === 2 && initialPinchDistance !== null) {
-          // Pinch Zooming
           const pointers = Array.from(activePointers.values());
           const currentDistance = Math.hypot(pointers[0].clientX - pointers[1].clientX, pointers[0].clientY - pointers[1].clientY);
           const scaleFactor = currentDistance / initialPinchDistance;
@@ -1142,7 +1149,6 @@
           if (currentScale === 1) { panX = 0; panY = 0; }
           updateImageTransform();
         } else if (activePointers.size === 1 && isDragging) {
-          // Single finger panning (when zoomed in)
           if (currentScale > 1) {
             panX = e.clientX - startX;
             panY = e.clientY - startY;
@@ -1160,7 +1166,6 @@
         }
 
         if (activePointers.size === 1) {
-          // Switch back to single finger drag if one finger remains
           const remainingPointer = Array.from(activePointers.values())[0];
           isDragging = true;
           startX = remainingPointer.clientX - panX;
@@ -1169,7 +1174,6 @@
           if (isDragging) {
             isDragging = false;
             touchEndX = e.clientX;
-            // Swipe detection for next/prev image when not zoomed in
             if (currentScale === 1) {
               if (touchStartX - touchEndX > 50) nextImage();
               else if (touchEndX - touchStartX > 50) prevImage();
