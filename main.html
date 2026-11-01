@@ -98,6 +98,27 @@
       .video-section { height: 300px; }
     }
 
+    /* Side-by-side YouTube Grid Layout (1x2) */
+    .video-grid-1x2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      width: 100%;
+    }
+    .video-grid-1x2 .video-section {
+      margin: 0;
+      height: 400px;
+    }
+    @media (max-width: 768px) {
+      .video-grid-1x2 {
+        grid-template-columns: 1fr;
+      }
+      .video-grid-1x2 .video-section {
+        height: 280px;
+      }
+    }
+
     .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; width: 100%; margin: 0 auto; }
     @media (max-width: 1024px) { .album-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 640px) { .album-grid { grid-template-columns: 1fr; } }
@@ -299,6 +320,10 @@
           <button class="btn btn-upload-admin" id="btnUploadAdmin">Upload Photo</button>
         </div>
       </div>
+      
+      <!-- Container for dynamic highlights videos -->
+      <div id="highlights-video-container"></div>
+
       <div id="photo-grid" class="photo-grid"></div>
     </div>
   </main>
@@ -369,9 +394,25 @@
     const folders = [
       { id: "save-the-date", title: "Save the date", defaultCover: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" },
       { id: "engagement", title: "Engagement", defaultCover: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80" },
-      { id: "engagement-highlights", title: "Engagement Highlights", defaultCover: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80" },
+      { 
+        id: "engagement-highlights", 
+        title: "Engagement Highlights", 
+        defaultCover: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=800&q=80",
+        videos: [
+          "https://www.youtube.com/embed/gBmXWUkYXc0",
+          "https://www.youtube.com/embed/gBmXWUkYXc0"
+        ]
+      },
       { id: "wedding", title: "Wedding", defaultCover: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80" },
-      { id: "wedding-highlights", title: "Wedding Highlights", defaultCover: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80" }
+      { 
+        id: "wedding-highlights", 
+        title: "Wedding Highlights", 
+        defaultCover: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80",
+        videos: [
+          "https://www.youtube.com/embed/gBmXWUkYXc0",
+          "https://www.youtube.com/embed/gBmXWUkYXc0"
+        ]
+      }
     ];
 
     let currentFolderId = "";
@@ -587,6 +628,25 @@
       document.getElementById("current-folder-title").textContent = title;
       document.getElementById("home-view").style.display = "none";
       document.getElementById("gallery-view").style.display = "block";
+      
+      // Render 1x2 YouTube grid if videos are defined for this folder
+      const videoContainer = document.getElementById("highlights-video-container");
+      const folderObj = folders.find(f => f.id === id);
+      if (folderObj && folderObj.videos && folderObj.videos.length > 0) {
+        videoContainer.innerHTML = `
+          <div class="video-grid-1x2">
+            <div class="video-section">
+              <iframe src="${folderObj.videos[0]}" title="YouTube video player 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+            <div class="video-section">
+              <iframe src="${folderObj.videos[1]}" title="YouTube video player 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+          </div>
+        `;
+      } else {
+        videoContainer.innerHTML = "";
+      }
+
       await renderPhotos();
     }
 
@@ -602,6 +662,7 @@
       document.getElementById("current-folder-title").textContent = `${folderTitle} (Select Cover Photo)`;
       document.getElementById("home-view").style.display = "none";
       document.getElementById("gallery-view").style.display = "block";
+      document.getElementById("highlights-video-container").innerHTML = "";
       
       const grid = document.getElementById("photo-grid");
       if (!grid) return;
